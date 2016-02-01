@@ -1,0 +1,28 @@
+python midi
+--------------------------------------------------------------------------------
+
+
+
+這裡列了很多 python midi library http://wiki.python.org/moin/PythonInMusic 
+整理的很亂, 且名字都很相近, 底下個別下註解
+
+  pygame.midi - 會動, 直接整合pyPortMidi, 但太大了
+  pyMIDI - 只能for alsa, 不支援windows
+  midi.py - 正確名稱應該是 SMF reader/writer
+  PMIDI - windows only.  playback only, 播放有使用windows stream api. 包含win32 installation exe, 但完全找不到範例.
+  portmidizero - 簡單portmidi wrapper
+  PyChoReLib - 可以辨識和絃. 值得一try 
+  PyMIDI - 沒用的老東西
+  PyPortMidi - 著名的PortMIDI 正式的 Python wrapper. 但maintain狀況很差, 只到python 2.4, 每個平台都要從C source code從頭自己build 
+  PythonMIDI - SMF reader/writer
+  PySeq - 只有alsa
+  milk - 沒用的老東西
+  pyrtmidi -  rtmidi的python wrapper, rtmidi 是c++寫的跨平台 MIDI I/O lib,  強調realtime, 裡面還有不少memory allocation/thread等等低階的C++ code, well-designed, 文件很完整. 有整合Qt & PyQT.  No windows installation exe.
+  winmidi.pyd - 沒用的老東西
+  win32midi - link 失效.  最後在這裡找到 http://groups.google.com/group/pymidiwin?pli=1  簡單的midi play lib 直接call win32 api, 但底層檔案沒給source code, 想要看如何直接call win32 midi api 看這裡  http://www.sabren.net/rants/2000/01/20000129a.php3 
+  midiutil - SMF reader/writer , 支援到python 2.6/3.0 , 與2.5不相容
+ 
+
+--------------------------------------------------------------------------------
+
+

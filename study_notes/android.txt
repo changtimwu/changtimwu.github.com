@@ -1,0 +1,74 @@
+android
+--------------------------------------------------------------------------------
+
+
+
+eclipse:
+how to import the phonegap for android example:
+
+很複雜一步一步來
+
+1.  menu 選file -> new -> android project-> 
+選 create project from existing source 
+location 用browse 選 phonegap_src/Android/Sample 目錄
+2. 在 package explorer 裡面right click 選 build path, 
+選Configure build path, 
+選 add JARs, 
+把lib/phonegap.jar 加進去
+3. 確定build 會成功後, 存檔
+4. 在package explorer 裡面對 exampleapp right click後選close project
+5. 把package explorer 選對 exampleapp right click後選 delete
+
+7. menu 選 file -> import 
+* 選 existing projects into workspace 
+* Select root directory 裡面選 phonegap_src/Android/Sample 目錄
+* check  Copy projects into workspace
+ 
+ 
+
+--------------------------------------------------------------------------------
+
+
+
+1. 想要用Fragment 請繼承 FragmentActivity來create 一個新的activity
+2. 這個activity 一樣在onCreate時 把該activity 的resource load進來( via setContentView(R.layout.myactivity));
+3. Fragment 如同Activity 內的其他元件, 一樣可以選擇使用 "programmatic" or "XML based" 方式來產生.
+
+
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+FragmentMenu解析
+在support4demo 範例裡面的FragmentMenuSupport.java
+裡面的checkbox 跟menu無關, 他們只是設定好在click時會把menu選項改掉(updateFragmentVisibility)
+
+關於menu 這兩個fragment 都created from MenuFragment
+ 
+
+
+
+
+public static class MenuFragment extends Fragment {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+       setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+         MenuItem item;
+        item = menu.add("Menu 1a");
+        MenuCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        item = menu.add("Menu 1b");
+        MenuCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_IF_ROOM);
+    }
+
+}
+--------------------------------------------------------------------------------
+
+

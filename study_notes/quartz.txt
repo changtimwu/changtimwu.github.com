@@ -1,0 +1,82 @@
+quartz
+--------------------------------------------------------------------------------
+
+
+
+
+
+Painting Paths
+
+These functions are used to stroke along or fill in the current path. 
+
+CGContextClearRect
+CGContextDrawPath
+CGContextEOFillPath
+CGContextFillPath
+CGContextFillRect
+CGContextFillRects
+CGContextFillEllipseInRect
+CGContextStrokePath
+CGContextStrokeRect
+CGContextStrokeRectWithWidth
+CGContextReplacePathWithStrokedPath
+CGContextStrokeEllipseInRect
+     CGContextStrokeLineSegments
+CG會暫存一組屬性與path, 最後以所要求的繪圖動作畫出去. 基本上是以這三者結合決定最後的繪圖結果
+有時候不一定要暫存資料, 而是直接以function參數指定屬性或path, 直接畫出去
+
+相關function 有三種, 一種是設定屬性, 一種是設定path, 一種是執行繪圖動作
+
+
+
+
+
+
+
+設定屬性
+CGContextSetRGBStrokeColor
+CGContextSetRGBFillColor
+
+CGContextSetLineWidth
+
+
+增加線段
+CGContextAddRect
+
+
+
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+100%
+
+
+
+ percentage=100.000000
+
+0: vertex=( 0.00, 0.00), texCoords=(0.00, 0.55) 
+1: vertex=( 0.00, 70.00), texCoords=(0.00, 0.00)
+2: vertex=( 512.00, 0.00), texCoords=(1.00, 0.55)
+3: vertex=( 512.00, 70.00), texCoords=(1.00, 0.00)
+
+percentage=50.000000
+
+0: vertex=( 256.00, 0.00), texCoords=(0.50, 0.55)
+1: vertex=( 256.00, 70.00), texCoords=(0.50, 0.00)
+2: vertex=( 512.00, 0.00), texCoords=(1.00, 0.55)
+3: vertex=( 512.00, 70.00), texCoords=(1.00, 0.00)
+
+percentage=0.000000
+
+0: vertex=( 512.00, 0.00), texCoords=(1.00, 0.55)
+1: vertex=( 512.00, 70.00), texCoords=(1.00, 0.00)
+2: vertex=( 512.00, 0.00), texCoords=(1.00, 0.55)
+3: vertex=( 512.00, 70.00), texCoords=(1.00, 0.00)
+
+--------------------------------------------------------------------------------
+
+

@@ -1,0 +1,96 @@
+knockoutjs
+--------------------------------------------------------------------------------
+
+
+
+knocknout.js is MVVM( model-view-viewmodel).
+
+
+1. model could be pure data js variables in js or json from server.
+2. view is html.
+3. basically, viewModel glues model and view.  It defines the uniform access to all data from model.  Views can access model's data through viewModel's abstraction.
+
+viewModel is the whole spirit of knockout.  What I've found about viewModel.  
+0. viewModel could a dict or a class
+
+1. data:  variable to be bind with an UI control.   It must be declared as type ko.observable or ko.dependentObservable.  For array type data, you can encapsulate it with ko.observableArray.
+2. function:  event handler to be bind with an UI control.
+
+view:
+1. view is in html tag.   To bind a html UI with a viewModel's variable, use 'data-bind' attribute to that tag.  
+2. To bind a html UI event(like click) with a viewModel's function, use 'data-bind' attribute to that tag.
+
+
+viewModel 怎麼寫, lastName就是binding Variable, 就是要丟給view秀的variable, view可以用lastName來reference它, 我們之後簡稱之為BV
+var viewModel = {
+    lastName: "Bertington"
+};
+
+這樣, 任何跟 lastName bind 的ui control就可以正確秀出"Bertington",  but it's read only.
+
+If you bind it with a control like <INPUT> and you want the binding bidirectional, please wrap its value with ko.observable. 
+var viewModel = {
+    lastName: ko.observable("Bertington")
+};
+
+這樣可以把它跟<input> bind, any UI operations cause writes to lastName can be reflected to other UI controls binding with lastName. 
+ko.observable  also makes lastName can be modified in an event handler. 
+
+
+in official tutorial.  
+1. All readonly UI controls are <span>.
+2. All writable UI controls are <input>.
+3. All UI controls bind with "event" is <button>
+
+How to write data-bind:
+syntax:
+	 data-bind="attribute: BV expression"
+解釋: 畫面更新時就evaluate BV expression, 然後assign 給attribute
+常見的 attribute 有 text, value, options, visible
+
+ex. data-bind="value: name"
+把name塞給 value
+
+ex.  data-bind="visible: totalSurcharge() > 0"
+意思就是visible only when totlSurcharge() > 0
+
+也可以指定多個 attribute, 都用逗號隔起來
+ex. <select data-bind="options: availableMeals, value: meal, optionsText: 'mealName'"></select>
+把availableMeals assign給選項, meal assign給value,  
+
+--------------------------------------------------------------------------------
+
+
+
+Tutorial 2: Working with Templates and Lists
+viewModel:
+1. availableMeals: pure record data
+2. seatReservation: define a class(  JS doesn't support class concept.  You define a class by writting its constructor function first.  Then you can use new  to this constructor to create an instance for this class.)
+3. viewModel 裡面的唯一的binding variable
+
+In view(HTML), you reference BV name in data-bind attribute.  In template, you can reference BV more deliberately.  Since template syntax are interpreted via template engine, you can access BV without data-bind attribute, you just use BV name directly.
+In this ex, you can write each seats.  
+Here, seats is the BV.
+
+To access BV wrapped with ko functions,  you must use function invocation like BV(). 
+
+ 
+<script type="text/x-jquery-tmpl" id="reservationTemplate">  的意思就是
+以後遇到 UI control 若其data-bind為 reservationTemplate, 就執行script 內用template語法寫的template code,  把該UI control的content換掉.
+
+
+注意<input data-bind="value: name"> 這種寫法, 原本認為seats才是BV, 這樣寫似乎代表seats 內的 seatReservation內的 name也可以當BV？
+
+原因:
+ <tbody data-bind="template: {name:'reservationTemplate', foreach: seats}"></tbody> 
+這一行就已經宣告, 真正會pass 給template code執行替換的只有seat reservation而非seats, 也就是整個binding主體從seats 變成seatReservation,
+所以, seatReservation裡面的 name, availMeals, meal, 都可以當PV用
+
+ko.dependentObservable似乎一定要在外部指定.
+ko.dependentObservable 含意就是derived data
+
+
+
+--------------------------------------------------------------------------------
+
+

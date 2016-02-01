@@ -1,0 +1,43 @@
+aws
+--------------------------------------------------------------------------------
+
+
+
+取得正在run的instance的本身資料, 可以透過一系列工具
+ sudo apt-get install ec2-api-tools
+ /usr/bin/ec2metadata 
+
+ami-id: ami-42562810
+ami-launch-index: 0
+ami-manifest-path: (unknown)
+ancestor-ami-id: unavailable
+availability-zone: ap-southeast-1a
+block-device-mapping: ami
+ephemeral0
+root
+instance-id: i-bd09ece8
+instance-type: t1.micro
+local-hostname: ip-10-128-54-121.ap-southeast-1.compute.internal
+local-ipv4: 10.128.54.121
+kernel-id: aki-11d5aa43
+product-codes: unavailable
+public-hostname: ec2-175-41-172-237.ap-southeast-1.compute.amazonaws.com
+public-ipv4: 175.41.172.237
+public-keys: ['ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDfk2xIOA1Ssvzpgixi84ODpMxiL310YzcMej5bfFJvDuMgSbodpBFjBn/Q9HZzWVd/vbXnPO1KU6Sqy2fqadkMjNgoqHS9f4grAW2uH+f68hnPzCbbKp+joItC1LuOZ9WeQbUVnITK+09cmH7H8SYh8Xw+narHGHA6POkV5/bIzvoHr2JcjRU8gYxb2DzLvrdXCLiFRpRttsU3C9qydNuR1E3isCsL0qp4jIonUtgN48DtPUuT87QuIojdP24+hg3tYougjg4HCLV50WMimUOlINCT0TSJwSJ8wO0y5JBCFIVpKQSEOgUlXLA0OtaISK86mSt3dJvfwnEEWQn3wIjX timakey']
+ramdisk-id: unavailable
+reserveration-id: unavailable
+security-groups: default
+user-data: blah blah Tim test
+
+ec2 把instance相關資料放在這裡
+curl http://169.254.169.254/2011-01-01/meta-data/
+curl http://169.254.169.254/2011-01-01/user-data/
+
+寫程式的話, boto可以透過boto.utils拿到不少資料
+print boto.utils.get_instance_userdata()                                        
+print boto.utils.get_instance_metadata()  
+
+ curl http://169.254.169.254
+--------------------------------------------------------------------------------
+
+

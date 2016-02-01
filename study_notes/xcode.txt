@@ -1,0 +1,17 @@
+xcode
+--------------------------------------------------------------------------------
+
+
+
+
+SDK path:
+/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.2.sdk/
+
+you can access lib & include files in SDK path  .ex
+/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.2.sdk//usr/include/mach/mach_time.h 
+
+when compiling C, xcode doesn't understand inline keyword?
+
+--------------------------------------------------------------------------------
+
+

@@ -1,0 +1,32 @@
+mongodb
+--------------------------------------------------------------------------------
+
+
+
+ db.shops.find(  {'foodcates.foods.name':/孫家/}, {'name':1, 'foodcates.foods.name':1})
+ 
+
+--------------------------------------------------------------------------------
+
+
+
+mongodb provides very powerful query operators.  Some of them can even reach deep embedded documents' fields.
+
+my shop collection needs redesign
+1. My 'foodcate' and  'variant' is very like schema concepts in relational database.  Its design motivation aims at an uniform data structure for all shops and foods.
+2. This makes the whole database full of 'One element array's.  For example  there are many shops not categorizing their food items and we create an  foodcate named as 'all' for them. 
+3.  The one element array make is not intuitive.  It's not natural for human.
+4.  I wonder if such a design is feasible in a NoSQL database like mongodb.
+
+How about design in NoSQL way?
+
+1. A shop directly owns foods. 
+2. foocate is an optional field of a food.
+3. Food owns price directly
+4. Variants is an optional field of a food.
+ 
+
+
+--------------------------------------------------------------------------------
+
+

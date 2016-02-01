@@ -1,0 +1,224 @@
+cocoa
+--------------------------------------------------------------------------------
+
+
+
+UIViewController, UIView, UIWindow, 之間的關係
+
+new project 時選用"view based "
+
+會產生大概長這樣的程式
+
+Classes:
+	appDelegate.h
+	appDelegate.m
+	myViewController.h
+	myViewController.m
+
+Main:
+	myViewController.xib
+	MainWindow.xib
+
+
+appDelegate.h裡面宣告了 一份
+UIWindow *window;
+myViewController *viewController;
+
+@interface AppDelegate : NSObject <UIApplicationDelegate> {
+UIWindow *window;
+myViewController *viewController;
+} 
+
+@property (nonatomic, retain) IBOutlet UIWindow *window;
+@property (nonatomic, retain) IBOutlet myViewController *viewController;
+
+
+不但做成property, 且前面要加IBOutlet, 這樣, 稍後就可以在interface builder 把resource裡的相關物件利用 reference outlet指過來
+
+
+觀念上一個app 的基本結構, 一整個還沒有UI的時候, 就是由appDelegate先啟動,
+appDelegate含有整個app裡唯一的UIWindow(大部分情況下是唯一), , 上面疊UIView( addSubView), UIView很少單獨存在, 通常都是有個UIViewController, 他天生就有含一份
+UIView
+
+myViewController.xib 唯一的 object class是UIView, 而不是UIViewController, 這個UIView的reverence outlet是 File Owner的view, 我目前還不解
+
+MainWindow.xib 裡面有三個object, 分別是delegate 的UIViewController
+
+
+--------------------------------------------------------------------------------
+
+
+
+ 想要看如何抓字型的外框
+發現官方有個範例, CoreAnimationText效果不錯
+由於它是建構再CALayer且又只能在Mac跑
+
+所以必須要把它CALayer看懂, 再來移到ios
+
+ios 的layer並不能像MacOS 直接在view裡面setLayer
+
+ios 有個範例叫做MoveMe, CALayer
+
+關於文字支援：
+quartz 太低階不支援unicode
+UIKIT太高階不夠彈性
+
+所以要用coretext
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+四種animation
+
+給UIView用的： 我們稱作animating uiview
+1. block-based animation
+
+
+2. 
+[UIView beginAnimations];
+[UIView commitAnimations];
+
+在CALayer用的: 我們稱作Layer Change
+3. 
+ CAKeyframeAnimation *moveAnim = [CAKeyframeAnimation animationWithKeyPath:@"position"];
+ moveAnim.path = movePath.CGPath;
+ moveAnim.removedOnCompletion = YES;
+ moveAnim.repeatCount = 1;
+ moveAnim.duration = 3;
+ [uv.layer addAnimation:moveAnim forKey:@"position"];
+ 
+ 
+ 
+
+
+--------------------------------------------------------------------------------
+
+
+
+How to implement a customized UIViewController
+Three essential methods to override
+
+1. loadView
+allocate & load your specific view here.  Usually, you will implement the specific view by inheriting UIView.
+
+2. viewDidDisappear
+
+3.
+
+
+--------------------------------------------------------------------------------
+
+
+
+tab APP 大致樣式
+based on the sample called iPhoneCoreDataReceipes
+1. rootviewcontroller 通常就是一個UITabBarController.  裡面含有一個It contains a UITabBar.
+2. 每個tab裡面都可以再塞viewController,  iPhoneCoreDataReceipes這個範例中, Recipes與Unit Conversion都是用UINavigator, 但其實可自己加別種view controller, 比如UITableViewController.
+
+tab 裡面使用 table view controller:
+
+tab裡面使用navigation view controller:
+
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+ interface builder 名詞解釋
+當我們按下IB, objects 裡面某個元件時, 有兩類屬性可以連結
+outlets:
+每一行分成兩欄, 
+右邊:  所對應到IB元件名稱
+左邊：在我們 code宣告的變數名稱
+
+
+referencing outlets: 剛好是outlets的相反, 它是列出有哪些IB元件reference到我們
+右邊: 哪個IB元件
+左邊: 那個IB元件 reference 到我們, 在code裡面所使用的變數名稱
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+舊版xcode的問題:
+wizard選 window based, 就可以選universal , 但只有window based 才能選universal, view based只能ipad iphone 二選一, 
+些謝這裡的作法更
+會gen出一個AppDelegate, 然後iPhone iPad都會有個自配好一份 AppDelegate_iPhone.m/.h & AppDelegate_iPad.m/.h
+兩個都繼承 AppDelegate
+
+
+--------------------------------------------------------------------------------
+
+
+
+用最新版xcode  4 wizard產生的 single view app,  設定選universal app, 裡面的作法比以前好多. 
+
+1. iphone/ipad 兩個 XIB裡面, 各自都有一個view, 不含viewcontroller, 也不含window, 
+
+2. app delegate 選告兩個property, _window & _viewController
+
+3. _window用下列方法生成
+self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+[self.window makeKeyAndVisible]; 
+
+4. 判斷是iphone 還是 ipad
+if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) { 
+
+5. _viewcontroller 用下列方法生成, 順便把XIB 裡的view 帶進來
+
+self.viewController = [[navtestViewController alloc] initWithNibName:@"navtestViewController_iPhone" bundle:nil]; 
+self.window.rootViewController = self.viewController; 
+
+這裡的navtestViewController   是繼承UIViewController,  
+
+跟以前最大的不同在, window & viewController 都一份就好, 只有view要從XIB裡面帶
+
+以前把window放在xib都要做幾樣很無聊的重複設定
+1. 把IB 裡的app delegate裡的window 欄位outlet 指到IB 裡的window
+2. 把IB 裡的window 裡的rootViewController 指到 IB裡的 root viewControler
+
+
+--------------------------------------------------------------------------------
+
+
+
+TransWeb project解析
+標準的 Navigation Bar 一從元件lib拉出來, 一開始就直接含一個navigation bar, 還有一個view controller, view controller裡面又再含一個navigation item,
+TransWeb 大致上跟標準的一樣, 但是多了
+1. view controller 是繼承後自定 叫做My View Controller
+2. navigation controller   內多加了一個view, 這個view裡面又含了一個image view + web view
+
+把viewdrag 到viewcontroller裡面, 那個viewcontroller的outlet裡的view就會自動指向那個被拖近來的view
+
+1. app delegate 主動含有window & navigation controller, 裡面變數名稱為myNavController
+2. 
+
+--------------------------------------------------------------------------------
+
+
+
+iphoneincubator 快速隨筆
+
+這隻程式由數個範例組成, 每個範例進入點都是一個viewcontroller, 整隻程式的root viewcontroller是一個UITableviewController, 一啟動會把plist裡的每個範例的caption 與對應的viewcontroller都載入.
+user select到某個cell後就pushviewcontroller切進去
+
+navigator 內的view controller指向rootviewcontroller
+rootviewcontroller 基本型態
+有code:  繼承uitableviewcontroller 
+有XIB: 就叫做rootviewcontroller.xib 裡面就一個TableView (注意, 而非tableviewcontroller)
+
+整支App 通常唯一的UIWindow, 在這裡不但有XIB, 也擴充自定, 名字叫做ScoopWindow, 裡面含了一個webview(不知道做什麼)
+
+
+
+
+--------------------------------------------------------------------------------
+
+

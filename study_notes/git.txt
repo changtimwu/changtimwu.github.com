@@ -1,0 +1,619 @@
+git
+http://www.slideshare.net/littlebtc/git-5528339
+http://josephj.com/entry.php?id=308
+
+--------------------------------------------------------------------------------
+
+
+
+git show-branch --more=2
+列出有哪些branch 並且列出每個branch的最後n次commit 的comment,  加上more=2就代表最後兩次
+
+如何判讀show-branch,
+
+ion@ion-desktop:~/programming/gittest$ git show-branch  --more=3
+
+
+! [master] add oneline in master.
+* [master2] add file for master2.
+! [mydev] new modify in mydev.
+! [mydev2] add for mydev2
+----
+* [master2] add file for master2.
++* [master] add oneline in master.
++ [mydev2] add for mydev2
+++ [mydev] new modify in mydev.
+++ [mydev^] add new file in mydev.
+++ [mydev~2] do some cut on mydev.
++*++ [master^] add new file for testing.
++*++ [master~2] remove memwatch too.
++*++ [master~3] cut comments.
++*++ [master~4] remove unecessary comments.
+
+
+橫槓前列出4個branch 的HEAD commit's comment, *代表目前所在branch, 其餘branch 一律列!
+橫槓後列出以時間點排序, 4個branch的最後三次commit(因為指定more=3)
+橫槓後面的星號, 代表目前這條branch一路往回追朔的脈絡, 哪幾次commit 跟它有關, 哪幾次跟它無關.
+
+
+
+git diff 與 git diff --cached的差別在於, 後者會順便連已add的檔案都列在diff內
+
+man gitcore-tutorial
+or
+man gittutorial
+可以看到簡單教學
+
+git show master:ustroke.c
+
+git checkout 可以用來切換branch, 但也可以用來revert
+比如
+git checkout mydev
+切換到branch mydev
+
+git checkout ustroke.c
+還原ustroke.c
+
+使用checkout切到某個branch前最好先commit 乾淨, 不要有local change, 不然會得到
+error: You have local changes to 'sources.list'; cannot switch branches.
+
+my .gitconfig
+[color]
+    diff = auto
+    status = auto
+    branch = auto
+    interactive = auto
+[user]
+    name = Tim Wu
+    email = changtimwu@gmail.com
+[core]
+    excludesfile = ~/.gitignore
+    editor = vim
+[alias]
+    st = status
+    ci = commit
+    co = checkout
+    br = branch
+
+~/.gitignore 可以所有project 生效
+
+git log -1
+可以只列出目前最新commit
+
+
+modify between add and commit
+
+1. git add a.txt
+(只有stage, 尚未commit)
+
+2. vim a.txt 
+(又做修改)
+
+3.a   git commit 
+(這時候commit, 只會commit step 1 的部份 )
+
+or 
+4.b   git commit a.txt
+(這時候就會完整commit step 1&2)
+
+------ 查閱commit 資料 ----
+1. 列出最後兩次commit
+> git log -2
+commit bff98c5121c565f3a2c5cb92004ae9e9067b541c
+Author: changtimwu <changtimwu@gmail.com>
+Date:   Sun Mar 27 13:47:38 2011 +0800
+
+	devel add the second line.
+
+commit 1000c47553e1d54e78dcaf9b9d186ef14133d44e
+Author: changtimwu <changtimwu@gmail.com>
+Date:   Sun Mar 27 13:44:49 2011 +0800
+
+	devel add the first line.
+
+2. 看一下倒數第二次commit  到底發生什麼事
+>
+> git show 1000c47553e1d54e78dcaf9b9d186ef14133d44e
+commit 1000c47553e1d54e78dcaf9b9d186ef14133d44e
+Author: changtimwu <changtimwu@gmail.com>
+Date:   Sun Mar 27 13:44:49 2011 +0800
+
+	devel add the first line.
+
+diff --git a/mydev.txt b/mydev.txt
+index d6afd6b..5036cc9 100644
+--- a/mydev.txt
++++ b/mydev.txt
+@@ -1 +1,2 @@
+ mydev creates new file
++devel add the first line
+
+
+3. 看每次commit到底改了什麼
+> git log  -p 
+
+4. 看最近兩次commit到底改了什麼
+> git log   -2 -p 
+
+5. 看某個檔案最近兩次commit到底改了什麼
+> git log   -2 -p  filea.txt
+
+--------------staging area 觀念 ------
+
+quote from ihower
+
+     也因為多了一層 staging area 的存在，所以 diff 細分成三種
+     git diff 是比較 working tree 跟 staging area
+     git diff --cached 是比較 staging area 跟本來的 repo.
+     git diff HEAD 是比較 working tree 跟本來的 repo.
+
+
+測試一下
+
+1. 一開始都很乾淨
+> git status
+# On branch udev
+nothing to commit (working directory clean)
+
+
+2. 做修改
+> vim udev.txt
+
+3. 修改的東西還沒上stage, git status寫它是Changed but not updated
+> git status
+# On branch udev
+# Changed but not updated:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+# modified:   udev.txt
+#
+no changes added to commit (use "git add" and/or "git commit -a")
+
+4. 比對working tree 與 staging area,  
+> git diff
+diff --git a/udev.txt b/udev.txt
+index 1c8ed0f..3d9da5d 100644
+--- a/udev.txt
++++ b/udev.txt
+@@ -1,3 +1,5 @@
+ this is udev's file
+ 
+ second modify
++
++third modify
+
+5. 比對staging area與repo, 因為東西還沒上staging area, 所以no difference
+> git diff --cached
+
+6. 把東西塞上staging area (  跟以前svn add 意義不一樣)
+> git add udev.txt
+
+7. git status 寫這是Change to be committed
+> git status 
+# On branch udev
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+# modified:   udev.txt
+#
+
+8. 比對working tree 與 staging area, 都一樣
+> git diff
+
+9. 比對staging area 與repo
+> git diff --cached
+diff --git a/udev.txt b/udev.txt
+index 1c8ed0f..3d9da5d 100644
+--- a/udev.txt
++++ b/udev.txt
+@@ -1,3 +1,5 @@
+ this is udev's file
+ 
+ second modify
++
++third modify
+
+10. 最後commit
+> git commit udev.txt
+[udev 3d7b088] third modify
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+
+
+--------- 單純comments 打錯想修正 ---
+> git reset 
+---------  每個階段的 undo --------
+1. 已經stage, 還沒commit (git status 會秀 Changes to be committed)
+> git reset HEAD udev.txt
+
+2. 修改了， 但還沒stage( git status 會秀 Changed but not updated:)
+> git checkout udev.txt
+
+3. 才剛commit, 還沒有別的commit, 還沒push, ex.  突然發現上次commit, 有一行改錯, 且少加一個檔案進去.
+> vim udev.txt  (把改錯的那一行內容修正)
+> git add udev.txt (上stage)
+> git add newfile.txt (把檔案補add 進去)
+> git commit --amend  -v (加上-v 會把這次commit 的diff內容也帶進去editor)
+
+4. 步驟三可以大幅簡化 
+> git commit  -a  - amend -v
+
+5. 有個檔案不想再track了
+> git rm --cachednewfile.txt 
+
+6. 已經過好幾次commit, 想要全部回復
+
+> git reset <commit number> ( 全部回到某個 commit number, 但是檔案內容不更動, 只是讓他們變成unstaged）
+> git checkout (回復檔案內容)
+
+
+-------------------------------------  remote repo 相關 --------
+
+0.  clone 回來以後, 一開始只會看到master
+>git branch
+* master
+
+1. 列出remote端所有branch
+> git branch -r
+  origin/HEAD -> origin/master
+  origin/develop
+  origin/gles20
+  origin/iPadHD
+  origin/master
+  origin/reorderSprite
+
+2. 決定把gles20 branch拿出來, 取名為 gles20
+> git checkout --track -b gles20 origin/gles20
+Branch gles20 set up to track remote branch gles20 from origin.
+Switched to a new branch 'gles20'
+
+3. 用git branch觀察就可以看到多了一個branch, 名叫gles20
+> git branch
+* gles20
+  master
+
+4. 因為有新的需求, 所以開個新的branch來處理,   叫做 mydev, 並且切過去
+> git branch mydev
+> git checkout mydev
+
+5. 做一點修改 & commit
+> vim mydev_readme.txt
+> git add mydev_readme.txt
+> git commit 
+
+6. 發現 mydev很複雜, 打算分享給團隊一起來改, 所以要把 mydev 建立到remote 端
+> git push origin mydev
+
+7. 團隊以類似 step 1,2的方式就可以取用mydev
+
+--------------------  remote branch 維護   ----------------------------
+0. 列出 local 有哪些branch
+> git branch
+* devel
+  master
+
+1. 列出remote repo有哪些branch
+> git branch -r
+  origin/HEAD -> origin/master
+  origin/devel
+  origin/master
+
+1.5  有時候 remote 才新建立的branch, git branch -r 看不到, 請用
+> git fetch origin
+
+2. 列出remote repo有哪些branch, 還有它們跟local branch 的詳細對應情況
+> git remote show origin
+  Fetch URL: git@github.com:changtimwu/sandbox.git
+  Push  URL: git@github.com:changtimwu/sandbox.git
+  HEAD branch: master
+  Remote branches:
+	devel  tracked
+	master tracked
+  Local branches configured for 'git pull':
+	devel  merges with remote devel
+	master merges with remote master
+  Local refs configured for 'git push':
+	devel  pushes to devel  (up to date)
+	master pushes to master (up to date)
+
+3. 把remote branch 最新更新update過來
+> git pull origin devel
+
+4. remote branch 用不到了, 想砍掉.
+> git push origin --delete  devel
+
+
+--------------------  雜項指令   ----------------------------
+0. git pull 要加 --rebase
+> git pull --rebase
+才不會多一筆commit  上面寫merge branch master 
+
+1. 看一下 remote repo 詳細資料
+> git remote -v
+origin  git@github.com:changtimwu/sandbox.git (fetch)
+origin  git@github.com:changtimwu/sandbox.git (push)
+
+2. 出問題的時候查細節
+>git config -l
+or
+> cat .git/config
+
+3. 看有多少已commit 但是還沒push 到remote 端的部分
+> git status
+# On branch master
+# Your branch is ahead of 'origin/master' by 1 commit.
+> git checkout
+'Your branch is ahead of 'origin/master' by 1 commit.
+
+3. 看有多少已commit 但是還沒push 到remote 端的 diff, (diff between local working tree and remote repo)
+列出所有還沒push 的commit:
+>git log origin/master..master 
+
+
+列出diff
+> git diff origin/master..master
+
+參考資料 http://stackoverflow.com/questions/3080509/git-list-commits-not-pushed-to-the-origin-yet
+
+--------------------------------------------------------------------------------
+
+
+
+git add -p <files> 可以選擇只commit部分
+git 會先以段落作切割, 多次問你要不要stage 某個 hunk, 如果不對, 可以打e自己編輯commit 內容, 想像在編輯diff檔案
+
+------------ 解決衝突 -----------
+
+git pull --rebase 發現衝突該如何解決
+1. 用 git branch 會發現目前處於 (no branch)
+2. 編修 source code把衝突解決
+3. 把改過的 source file 用 git add 加進去
+4. 輸入指令 git rebase --continue
+
+--------------------------------------
+
+branch exp 自從從master fork出去後, 總共又commit 了五次, 現在切到master後, 研究怎麼merge這五筆進來
+
+1. 切到master
+>git checkout master
+
+2. 看概略狀況, 很明顯最後是從master的 e75b35 fork出來的, 之後又增加了 422dd8, 8e6e27, a35330, 6db056, 73e03d
+>git  log exp
+commit 73e03dbae04c4e4116d272f64554678a5815f2c4
+Author: changtimwu <changtimwu@gmail.com>
+Date:   Sat Sep 1 14:41:25 2012 +0800
+
+    commit 6
+
+commit 6db056505efce0e782f9f119ac4e515a235b0410
+Author: changtimwu <changtimwu@gmail.com>
+Date:   Sat Sep 1 14:41:00 2012 +0800
+
+    commit 5
+
+commit a35330de13849e00644b192f492f19370d30155e
+Author: changtimwu <changtimwu@gmail.com>
+Date:   Sat Sep 1 14:40:44 2012 +0800
+
+    commit 3,4
+
+commit 8e6e27daf28bbd3dba91552bef517e2513523697
+Author: changtimwu <changtimwu@gmail.com>
+Date:   Sat Sep 1 14:40:25 2012 +0800
+
+    commit 2
+
+commit 422dd87f6dfbe3b3e415f7d50fb9756296dfd021
+Author: changtimwu <changtimwu@gmail.com>
+Date:   Sat Sep 1 14:40:12 2012 +0800
+
+    commit 1
+
+commit e75b351c19428bb80adfd26a379be41114b07659
+Author: changtimwu <changtimwu@gmail.com>
+Date:   Sat Sep 1 13:05:14 2012 +0800
+
+    make previous commit as history
+
+
+3. 用show-branch 看commit簡易代號
+>git show-branch
+
+ * [exp] commit 6
+  ! [master] make previous commit as history
+---
+ *  [exp] commit 6
+ *  [exp^] commit 5
+ *  [exp~2] commit 3,4
+ *  [exp~3] commit 2
+ *  [exp~4] commit 1
+ *+ [master] make previous commit as history
+ *+ [master^] commit 2.2
+ *+ [master~2] commit 2.1
++*+ [master~3] the second part
+
+4. 狀況1.   無條件merge這五筆
+> git rebase exp
+First, rewinding head to replay your work on top of it...
+Fast-forwarded master to exp1.
+
+5. 狀況2.  只merge 前面兩筆(commit 1, commit 2)
+>git rebase exp~3
+First, rewinding head to replay your work on top of it...
+Fast-forwarded master to exp~3.
+
+6. 狀況3. 只想merge前三筆( commit 1, commit 2, commit 3,4)
+>git rebase exp~2
+First, rewinding head to replay your work on top of it...
+Fast-forwarded master to exp~2.
+由狀況1,2,3看得出來, 語法規則是, git rebase [the last commit]
+
+7.狀況4, 只想merge前三筆( commit 1, commit 2, commit 3,4), 且希望把commit 3,4 拆成兩筆
+
+>git rebase exp~2 ＃三筆先都 rebase 進來再說
+>git reset  master^ # reset 回前一筆, 讓 exp~2 那筆變成只有working copy
+
+7.5  使用 add -p 來分段stage
+>git add -p README 
+diff --git a/README b/README
+index 19b10d9..6a82375 100644
+--- a/README
++++ b/README
+@@ -13,3 +13,4 @@ The Buffalo-area couple plans to get married again on Saturday, with four genera
+ 
+ one
+ two
++three,four
+Stage this hunk [y,n,q,a,d,/,e,?]? e 
+(這裡先選e編輯, 想像自己在修改diff file, 希望拆成three 一筆commit, four 再一筆commit, 所以請先把four刪掉) 
++three, four
+編輯完畢後存檔, 下指令檢查一下, three 應該已經stage進去, four 仍留在working copy
+> git diff
+> git diff --cache
+然後
+> git commit  ( 分拆後的第一筆commit)
+> git add README
+> git commit ( 分拆後的第二筆commit)
+
+8. 續狀況4, 我們想要繼續merge exp^1(commit 5), exp(commit 6)
+>git rebase master exp1   # 這裡我們不能打 git rebase exp 因為, 兩個branch 的base不一樣, 還記得我們在剛剛已經把exp^2分拆掉了
+
+9. 其實我們可以用git rebase -i 把7,8一次做完
+> git rebase -i master exp
+pick 50823df commit 1                                                             
+pick c5b453a commit 2
+pick d75f126 commit 3 and 4
+pick fef5a6c commit 5
+pick 9a4eb2f commit 6
+
+# Rebase e75b351..9a4eb2f onto e75b351
+#
+# Commands:
+#  p, pick = use commit
+#  r, reword = use commit, but edit the commit message
+#  e, edit = use commit, but stop for amending
+#  s, squash = use commit, but meld into previous commit
+#  f, fixup = like "squash", but discard this commit's log message
+#  x, exec = run command (the rest of the line) using shell
+#
+# These lines can be re-ordered; they are executed from top to bottom.
+#
+# If you remove a line here THAT COMMIT WILL BE LOST.
+# However, if you remove everything, the rebase will be aborted.
+
+git 會帶出editor 要你排程整個rebase  計畫, 我們打算把commit 3 and 4分拆, 其他照單全收, 所以請把那行作修改
+edit d75f126 commit 3 and 4
+存檔
+Stopped at d75f126... commit 3 and 4
+You can amend the commit now, with
+
+        git commit --amend
+
+Once you are satisfied with your changes, run
+
+        git rebase --continue
+依照 步驟 7.5 分拆後commit, 然後打
+git rebase --continue
+
+整合完成!
+
+------------------------------------------------------------------------------------
+上面流程很複雜 如果不熟  可以只用最簡單git  cherry-pick 來merge 單筆commit, 注意這是merge 所以會形成新的commit id
+ex. 
+git cherry-pick exp~3
+
+cherry-pick 有時候merge 失敗,  這時候它不commit,   merge 成功的檔案會先 add 進去,  可以用 git diff --cached 觀察, 不成功的檔案, 會秀"Unmerged path xxxx ",  檔案裡面會標明衝突點,   自己修正完畢後commit
+
+------------------------------------------------------------------------------------
+所以 origin 代表遠端,  origin/master 就代表遠端的master branch, 所有branch, commit 觀念依然適用, 例如
+git show origin/master
+git show origin/master^
+git show origin/master~2
+
+git show origin/master~3
+
+--
+
+
+把另一個poncat_system 的 xcatio 目錄 merge 過來
+git pull -X subtree=xcatio git@github.com:Intrising/poncat_system.git master
+這樣雖然只有xcatio目錄過來, 但是打git log 卻出現其他目錄的commit history
+
+另解
+git remote add -f psys git@github.com:Intrising/poncat_system.git
+git rev-list --reverse psys/master -- xcatio | git cherry-pick --stdin
+
+這樣就只會進來xcatio 的檔案與commit history
+TODO: 我們希望原本在xcatio/* 變成 ./*  , 上述解法仍舊會xcatio/*, 得自己追加 git mv xcatio/* .
+ 
+
+
+隨時開的branch 都可以push 到remote端
+
+git branch v0
+git checkout v0
+git push origin v0
+
+
+remote 端branch 玩完了可以砍掉
+
+git push origin --delete v0
+
+
+
+=================================================================
+某人某次commit 不小心把某個檔案內的code 砍了好幾行, 想要還原
+
+1. 先找出是哪一次commit改到
+  git show  864d38883690b01bf0755049289aa9964af1c62e
+  git show  864d38883690b01bf0755049289aa9964af1c62e~1
+  git show  864d38883690b01bf0755049289aa9964af1c62e~2
+  git show  864d38883690b01bf0755049289aa9964af1c62e~3
+   ..................
+
+2. 假設發現cpssprim 是在  c9d3cf06b665516e75af10257d6baebd2f0ce277~7   被改到, 那就是把  cpssprim.coffee 還原到那之前
+
+  git checkout  c9d3cf06b665516e75af10257d6baebd2f0ce277~8
+
+3. 用 git reset HEAD 讓 cpssprim.coffee 的屬性是modified
+ git reset HEAD cpssprim.coffee
+
+4. 人工檢查後
+git add cpssprim.coffee
+git commit cpssprim.coffee
+
+=================================================================
+明明在branch cprotocols  卻不小心 git pull --rebase master 
+
+1. 先把目前的 branch rename
+git branch -m cprotocols_taint
+
+2.  重新把乾淨的 cprotocols pull 回來
+git pull origin cprotocols:cprotocols
+
+3. 從 cprotocols_taint cherry-pick 需要的commit
+git cherry_pick cprotocols_taint HEAD~1
+git cherry_pick cprotocols_taint HEAD~3
+
+
+=================================================================
+在 branch cprotocols commit 了一堆東西後, 感覺已經改亂了, 卻又不想全部捨棄, 想把local commit另外找個branch 放
+
+1. 先把目前的 branch rename
+git branch -m cprotocols_taint
+
+2.  重新把乾淨的 cprotocols pull 回來
+git pull origin cprotocols:cprotocols
+
+* 選擇 git push 時的 default branch
+
+http://stackoverflow.com/questions/948354/default-behavior-of-git-push-without-a-branch-specified
+
+```
+git config --global push.default current
+```
+
+
+
+

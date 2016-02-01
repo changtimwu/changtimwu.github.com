@@ -1,0 +1,205 @@
+misc note
+--------------------------------------------------------------------------------
+
+
+
+ 
+
+
+
+
+room_qsng_by_zuinmenu.c
+--------------------------------------------------------------------------------
+
+
+
+Real Time Kernel & Xruns
+Xruns. What are they? Well, simply put, either they are buffer underruns or buffer overruns.
+   A buffer underrun happens during playback, when your sound card tries to read data from the buffer, but your software has not yet filled it.
+   A buffer overruns happens during recording, when your sound card tries to write data to buffer, but your software has not yet emptied it.
+The only acceptable time to receive Xruns is during application startup. Currently, for whatever reason, JACK applications usually cause a few Xruns as it connects to the JACK server, but these will not hurt you in any way. The most critical time to not receive an Xrun is during recording, because it causes a permanent glitch in your audio, which may or may not be easily heard.
+So now you should understand basically why you want to avoid Xruns. They will cause issues with your recordings, or cause annoyance during playback. Thankfully, you can get these down to a minimum, if not eliminate them altogether.
+The better way to avoid X-Runs is to install a real time kernel, optimized for audio production with low latency. You can simply do:
+ sudo apt-get install linux-rt
+Then follow the advice below under 'Real-Time Support' and you should be set up to run jackd and other applications in real time low latency mode. You need to reboot after you've installed the low-latency package and made the changes below. Make sure you reboot into the right kernel - it will come up in the list on the boot screen, but may not be set as the default option.
+Take care, with some nVidia graphic card, the linux-rt kernell will not work with nvidia-glx-new driver on amd64 cpu.
+Real-Time Support
+After you've got the kernel you still need to set up real-time access for your applications.
+All you have to do for this is give your audio group permissions to access the rtprio, nice, and memlock limits. To do this, you just need to run these commands, which will add some lines to the file /etc/security/limits.conf:
+ sudo su -c 'echo @audio - rtprio 99 >> /etc/security/limits.conf'
+ sudo su -c 'echo @audio - nice -10 >> /etc/security/limits.conf'
+ sudo su -c 'echo @audio - memlock 250000 >> /etc/security/limits.conf'
+The memlock line determines how much of your memory can be locked by audio processes. Some recommend setting this as half of your total memory (in K). See  Florian Paul Schmidt's page.
+And that is it! You're all set for real-time access!
+ 
+--------------------------------------------------------------------------------
+
+
+
+
+１．投資客
+投資客要是看不好就收手，等到市場好了，你才要進場，你多年陪養的仲介（樁腳）已經找了別的投資客，投資客一退場履進來要很久。市場不是大不好，投資客最好是作少，不要退場。退場要再進場，就得花很多時間。
+２．自住
+自住早晚得買，台灣最大的降價時間點是民國６８年到７２年，當時沒人買屋，一年小跌３％。
+民國７３到８０是漲價，民國８１到９０是跌價。一年跌３％，連九年合計跌了３０％，再來就是９１到９５漲價了。
+９６年，漲跌亙見，就看到９７之後了。
+我可以說，跌是小跌，長年的跌是可能的，就是很低的是短期大跌，因為，一來是歷史，二來是自住率太高了，三來是利率低，檔的久。
+所以，已經漲多了，跌是我上文說的，合理的情形是小漲小跌。所以，我建議自住，看到三通就立即買屋，至少，三通之後短期之內大跌就太不像話了，馬英九也該下台了。這很難出現。該買了。
+３．賣屋主。
+三通之後，短期之內，該有一翻期待，至少是大漲或是小跌，就賭徒而言，三通之後，就等他一年再賣也行。
+若不三通，鐵定是跌多漲少，該賣了。快快賣了，小虧也該賣了。
+注意的是，大家說的是對的，三通之後，也不見立即大筆錢就進來，不過，這是信心，這是可期待的，馬英九完全把經濟放在三通的期待。不管如何，三通至少可以作夢。三通信心會大增。
+
+４．明年一月的利多
+明年會篇列２００萬元的兩年免息，這是大利多的兌現。會小漲。買方會出來。
+特別是低價的房子。
+ 
+--------------------------------------------------------------------------------
+
+
+
+ Let's get back to the Default Alsa driver mode for now.  In this case the
+Audiophile interfaces are mapped to alsa pcm devices in the following
+way (I suppose the device's index is 1):
+ * hw:1,0 is Ao in playback and Di in capture
+ * hw:1,1 is Do in playback and Ai in capture
+ * hw:1,2 is Do in AC3/DTS passthrough mode
+
+In this mode, the device uses Big Endian byte-encoding so that
+supported audio format are S16_BE for 16-bit depth modes and S24_3BE for
+24-bits depth mode.
+
+One exception is the hw:1,2 port which was reported to be Little Endian
+compliant (supposedly supporting S16_LE) but processes in fact only S16_BE streams.
+This has been fixed in kernel 2.6.23 and above and now the hw:1,2 interface
+is reported to be big endian in this default driver mode.
+
+Examples:
+ * playing a S24_3BE encoded raw file to the Ao port
+   % aplay -D hw:1,0 -c2 -t raw -r48000 -fS24_3BE test.raw
+ * recording a  S24_3BE encoded raw file from the Ai port
+   % arecord -D hw:1,1 -c2  -t raw -r48000 -fS24_3BE test.raw
+ * playing a S16_BE encoded raw file to the Do port
+   % aplay -D hw:1,1 -c2 -t raw -r48000 -fS16_BE test.raw
+ * playing an ac3 sample file to the Do port
+   % aplay -D hw:1,2 --channels=6 ac3_S16_BE_encoded_file.raw
+
+
+--------------------------------------------------------------------------------
+
+
+
+Alan is 1 of VERY FEW girl who I REALLY respect.... she doesn't need to fake herself to be a cutie because she's naturally lovely, she doesn't need to wear those mini-skirt or sexy-clothes to attract men because she's naturally pretty, she doesn't need to do plastic surgery and those kind of craps because she can really sing... and that proves her to be a real natural singer, also she has a beautiful heart, this song is dedicated for earthquake in Sichuan, her hometown.
+ 
+
+--------------------------------------------------------------------------------
+
+
+
+ 
+graphical mode on qemu/Malta environment
+by fmaz on Wed Feb 14, 2007 11:57 am
+I am trying to use a graphical mode on Malta sytem emulated with qemu on x86 linux PC.
+
+I have build a kernel (v2.6.20) with support for
+* framebuffer devices
+* Cirrus Logic support
+* VA text console
+* Framebuffer Console support
+
+and I use the following command line to run qemu:
+qemu-system-mips -M malta -kernel vmlinux -initrd initrd.gz -hda hda.img -append "root=/dev/hda1 vga=0x313 console=cirrusfb" -std-vga
+
+I can see on the serial console, the system (debian) booting normally but I do not have any graphical mode (no logo)
+
+then I create a fb0 device:
+mknod /dev/fb0 c 29 0
+
+I have also installed directfb and the SDL library.
+And finally I check with a SDL game "heroes".
+
+=> opening '/dev/fb0' failed
+-> No such device.
+
+????
+ls -l /dev/fb0
+crw-r--r-- 1 root root 29, 0 2007-02-14 09:26 /dev/fb0
+
+--------------------------------------------------------------------------------
+
+
+
+[Technorati] Tag results for programming books
+ 
+--------------------------------------------------------------------------------
+
+
+
+我是男的，有用香水，而且因為用了很多年，一不用會渾身不對勁，變成一種習慣了；
+
+一開始是因為不喜歡身上有其他味道（公車、油味、煙味之類的），
+現在變成一種搭配，會按照今天的穿著或心情換香水，可能今天穿的正式點，
+就會噴味道稍微搶眼一點的Armani mania或是Calvin Klein ETERNITY，
+出去玩約會，穿的色系比較暗會用Kenzo Pour Homme竹子，
+穿亮點心情很好會用CHANEL Allure，想平靜點用CK be CK one。
+
+屁太多了，我覺得男生用香水沒什麼差，不要影響他人就好了，
+我都會問同事、朋友 香水味道會不會很重？不好意思，天天噴我鼻子都麻了。
+然後再去調整一下濃淡的程度嘍！
+
+
+我的香水有
+Armani mania
+BVLGARI BLV pour homme
+BVLGARI AQVA pour homme
+CHANEL Allure *2
+Ck one
+Ck be
+CK ETERNITY
+Kenzo pour homme竹子
+Ralph Laurem POLO SPORT
+Tommy Hilfiger
+
+很多都不是自己買的，是家人朋友知道我喜歡香水，每次送東西給我都是香水 XD
+現在有看到喜歡的都不敢買，唉！上次看到Paul Smith 的Story 超好聞得阿阿阿阿！
+
+其實香水瓶都很漂亮，自己是當作一種收藏，
+而且我覺得乾乾淨淨的男生帶一點個性的香味，很迷人！
+ 
+
+--------------------------------------------------------------------------------
+
+
+
+ Today I have come back to Hong Kong to stand before you and account for myself. I have never escaped from my responsibility. During the past few weeks, I have been with my mother and my family and my loved ones to show support and care and at the same time to have them support and care for me.
+
+I admit that most of the photos being circulated on the Internet were taken by me. But these photos are very private and have not been shown to people and are never intended to be shown to anyone. These photos were stolen from me illegally and distributed without my consent.
+
+There is no doubt whoever obtained these photos have them uploaded on the Internet with malicious and deliberate intent. This matter has deteriorated to the extent that society as a whole has been affected by this. In this regard, I am deeply saddened. I would like now to apologize to all the people for all the suffering that has been caused and the problems that have arisen from this. I would like to apologize to all the ladies and to all their families for any harm or hurt that they have been feeling. I am sorry. I would like to also apologize to my mother and my father for the pain and suffering I have caused them during the past few weeks. Most importantly, I would like to say sorry to all the people of Hong Kong. I give my apology sincerely to you all, unreservedly and with my heart.
+
+I know young people in Hong Kong look up to many figures in our society. And in this regard, I have failed. I failed as a role model. However, I wish this matter will teach everyone a lesson. To all the young people in our community, let this be a lesson for you all. This is not an example to be set for you.
+
+During my time away, I have made an important decision. I will whole-heartedly fulfill all commitments that I have to date. But after that, I decided to step away from the Hong Kong entertainment industry. I have decided to do this to give myself an opportunity to heal myself and to search my soul. I will dedicate my time to charity and community work within the next few months. I will be away from Hong Kong entertainment industry indefinitely. There is no time frame.
+
+I have been assisting the police since the first day the photos were published and I will continue to assist them. After this press con., I have obligation to help them with their investigation and hope that this case can end soon as everyone I think has the same wish.
+
+I would like to use this opportunity to thank the police for their hard work on this case. Thank you. I believe everyone's priority now (and) my priority now is to stop the suffering and pain, for not letting this...we do not want to let this situation become more out of control. We need to protect all the innocents and all the young from matters like this. In this regard, I have instructed my lawyers to do everything possible within the law to protect all the innocents, victims of this case. I believe that a press statement is being issued as we speak on what my lawyers have advised me to do.
+
+Lastly, I would like to thank everyone for coming here today and listening to what I have to say. I would like to also apologize once again to all the ladies and their families, my family and to everyone in Hong Kong and everyone in our society. I am deeply saddened by this. And I apologize to everyone (who) has to go through this. I would like to also thank you for giving me this opportunity to say what I have wanted to say all along in my heart.
+
+I hope, after today, I can have your forgiveness. With regard to this case, with everything, everything that has happened, I am deeply sorry. I hope you all accept my apology and give me a chance.
+
+--------------------------------------------------------------------------------
+
+
+
+2001年諾貝爾經濟學獎得主 George Akerlof 曾經提出一個說法, 就是[ 檸檬危機(Lemon Crisis) ]. 它原意是"當市場裏, 好的產品與次等的產品, 買方無從分辨時, 買方只肯出平均價格購買, 然後間接影響賣方不願意讓好的產品釋出, 這種現象一直循環下去的話, 有可能造成惡質化, 最後買賣方通通掛點." 
+--------------------------------------------------------------------------------
+
+
+
+you may find creating your application much more difficult than simply learning the basic design patterns in use.
+
+--------------------------------------------------------------------------------
+
+

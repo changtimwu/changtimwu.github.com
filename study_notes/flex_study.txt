@@ -1,0 +1,340 @@
+flex study
+--------------------------------------------------------------------------------
+
+
+
+同樣用flex寫, 可build 出swf or air檔
+
+flex source code是用兩種語言描述, 分別是 mxml 與actionscript寫, mxml語法上大致上是混合xml與actionscript, 裡面可以混合UI tag & mx script , 在flexbuilder裡面有ui設計器可用, 可以動態傳換source view or design view, adobe官方建議mxml 拿來寫UI, 就算要寫mx script也盡量只寫跟ui有關的邏輯,
+
+adobe 說"Although a simple Flex application can be written in a single MXML or ActionScript (AS) file, most applications will be broken into multiple files."
+
+actionscript跟寫flash的那個actionscript是一樣的, 並且多了一些library 可以支援ui control, 語法支援到actionscript 3, 官方建議盡量拿來寫business logic
+
+用flexbuilder學flex請從這裡開始.
+test
+
+也可以用free的flex sdk來寫flex程式, flex sdk是純command line 開發工具, 免錢, 且有linux版.
+flexsdk 本身是以java實作的, 必須要JVM才能跑, ubuntu內預附的JVM有點問題, 要改成sun 原廠的, 且sdk內的bin/mxmlc script也要做修改, 請以下列指令修改系統預設jvm
+sudo update-alternatives --config java
+
+然後可以從samples目錄下的程式開始鍊.
+
+第一支程式可以很簡單, samples/exporer/controls下的每個mxml都是一個獨立的小flex程式, 大多不會超過50行, 以Local.mxml為例, 程式只有短短三行.
+
+要build flex程式很簡單, 只要下
+mxmlc Local.mxml
+
+如果mxml內有用到其他action script檔 mxmlc也會自動去build
+
+build完會產生Local.swf, 用browser去run 就可以了, firefox只要下 firefox Local.swf執行
+
+
+要用flex3 sdk build air 應用程式在啟動adl這一段會出問題, 解法是記得要去download air sdk for linux, 用它的adt & adl,  直接把PATH裡air sdk bin優先於flex3 sdk bin是個方便的解法.
+仍然會出現"initial content not found"訊息, 在mac使用flexbuilder 3.1內附的flex sdk 也是一樣, adt  在linux也是狀況連連,
+windows  版flex sdk 3.2 裡面build air app,  一路從amxml 到adl都是ok的,
+
+
+flexbuilder網路上可以抓到破解檔
+mac, windows版flexbuilder也支援flex sdk command line模式
+
+
+
+
+以language層面從頭開始講解flex, 請參考這裡http://livedocs.adobe.com/flex/3/html/index.html
+
+adobe官方的actionscript 文件附有詳細說明與範例, 如何build & run裡面的範例, 請參考這裡 http://livedocs.adobe.com/flash/9.0/ActionScriptLangRefV3/ExampleInstruct.html
+大致上是要在flexbuilder 裡面開個actionscript project, 然後project name記得取範例裡面的main class name.,
+另外, 用純flex sdk也可以build actionscript範例, 一樣是把範例存檔檔名取primary class name, 然後
+mxmlc ex1.as
+
+flex文件裏在Using ActionScript 章節有講到怎麼整合mxml & actionscript,
+Adobe 講解的口吻, 比如
+"In this example, you include ActionScript code for the body of the click event handler of the Button control. The MXML compiler takes the attribute click="..." and generates the following event handler method:"
+似乎mxmlc is implemented as a actionscript code generator.
+
+class MyApp extends Application
+
+swc可以想成是給swf用的 lib, 官方正式名稱是RSL(runtime shared library), 顧名思義它是runtime link, 整個flex runtime 其實就是下面3個swc做出來的 (flash player沒有偷偷內建一些些?)
+   framework.swc
+   playerglobal.swc
+   rpc.swc
+透過至換這些 swc 可以做出有別於標準 flex 的mxml tag, 網路上有知名的openflux！
+
+mxml檔裡面可以直接使用flash filter, 寫法有幾種,
+第一種是直接寫成sub tag
+    <!-- Apply filter using MXML syntax to set properties. -->
+    <mx:Label text="DropShadowFilter" fontSize="20">
+        <mx:filters>
+            <mx:DropShadowFilter distance="10" angle="45"/>
+        </mx:filters>
+    </mx:Label>
+
+第二種是寫成 tag attribute
+
+    <!-- Apply filter and set properties inline. -->
+    <mx:Label 
+        text="DropShadowFilter (inline)" 
+        fontSize="20" 
+        filters="{[new DropShadowFilter(10, 45)]}"
+    />
+在flex的mxml檔裡面可以直接寫actionscript,  把程式寫在這個tag 裡面就可以了
+  <mx:Script><![CDATA[ 
+
+
+ ]]></mx:Script>
+
+mx:script裡的程式可以自由操弄其他 tag所定義的ui control , ui control的property設定裡面可以自由呼叫mx:script裡所寫的function, 
+詳細請參考Using filters in Flex.
+
+
+官方的 flex livedoc 第一頁 Getting Started, 並不適合初學者入門, 該範例雖然很炫, 但是一次整合太多東西, 不容易吸收了解.
+比較建議從第二章 Flex Programming Elements, 裡頭的Writing a simple application 開始學起,
+
+字型相關component Using Fonts
+
+
+
+adobe 文件說, "Adobe implemented Flex as an ActionScript class library. "
+
+debug:
+flex sdk 裡面的runtime 目錄是debug version flash player, 不但有含給browser用的plugin版, 也有standalone的flash player 執行檔, 直接把flashplayer擺到bin目錄下會很方便
+啟動方式就是直接
+
+flashplayer your.swf
+
+
+程式如果有call trace(), 這時候就可以順利在console 看到訊息,
+
+也可以使用flex sdk 內的fdb 來debug, 記得mxmlc build得時候要加-debug=true, fdb啟動方式
+fdb your.swf
+
+簡易使用說明.
+(fdb) info files
+.....
+layoutex.mxml#81
+(fdb) list layoutex.mxml
+ 1     <?xml version="1.0"?>
+ 2     <!-- mxml/LayoutExample.mxml -->
+ 3     <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml">
+ 4         <mx:Panel title="My Application"
+ 5             paddingTop="10"
+ 6             paddingBottom="10"
+ 7             paddingLeft="10"
+ 8             paddingRight="10">
+ 9             <mx:HBox>
+ 10                <!-- List with three items -->
+(fdb) b 25
+Breakpoint 2 at 0x62b8c: file layoutex.mxml, line 25
+
+(fdb) cont
+
+
+
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+flex3文件裡頭有一個章節　 Programming ActionScript 3.0 全都在講 as3, 裡面又有一章是 Flash Player APIs　　全都是在講　flash, 其實透過flex就可以完整地學習flash
+真正適合開始從頭練flash 程式設計的起點是這裡 Example: Creating a basic application,   以flash/flash CS等官方flash製作工具來學flash programming反而不適合, 因為這些軟體的主體是網頁動畫繪製, 寫程式是附加功能, 且這些軟體又大又貴.
+文件裡的的所有範例可以到這裡下載
+
+
+
+這裡有user評論個問題就是, adobe 官方 flash action script範例 如果要用mxmlc直接build, 都build不會過, 底下有人回答, 其實步驟如下,
+1. 先把as 變成package --> 最外圈包個package block,
+2. 每個package 一定包至少一個class --> 然後在import 與程式主體間包個 public class yourclass extends Sprite
+3. 把原來as 裏面直接開始跑沒用function包的主程式, 包成與上面這個class  的同名function(constructor)
+  public function AnimationSample()
+ 
+或者寫個空的 .mxml 框架, 宣告個panel當作畫板.
+
+
+
+
+
+Options for organizing your code
+as3的程式要怎麼擺放, 官方有兩種分類,
+unstructural:
+as3的code 可以直接放在mxml裡面, 只要用一個<mx:script> tag包起來就好, 或是用include的方式, ex. <mx:Script source="Box.as" /> adobe官方認為程式多的時候會很容易lost track,
+
+structural:
+把mxml 與as分隔成不同的source file, 把as3寫成class, 然後要用的人直接以該class 宣告出instance來,
+照這個寫的範例,
+actionscript 端greeter.as 寫成class Greeter
+     package
+     {
+         public class Greeter
+         {
+             public var name:String;
+             private var secretValue:Number;
+     
+             public function Greeter( initialName:String="agus")
+         }
+     }
+     
+mxml 端greeter_mx.mxml,  直接引用Greeter class
+     var myGreeter:Greeter = new Greeter();
+     output.text=myGreeter.sayHello();
+
+之後直接build greeter_mx.mxml就好
+mxmlc greeter_mx.mxml
+mxmlc會直接去搜尋所有的.as, 找出合適的greeter class
+
+
+
+
+
+flashplayer 的中文顯示會有問題, 記得啟動前　環境變數要去設定LC_ALL=C LANG=C
+如果開發過程中, 不給你遠端連線或是存取local resource, 一直出現 security  error, 可以到這裡來設定,
+記得到Global Security Setting來把你的要存取的目錄加上去
+
+
+官方有把livedoc包成一整包, 可以直接download, 不過觀念講解與教學的大部分都包成PDF, function & class reference才包成html
+f bronchospasm
+brochospasm
+
+SDK裏面有個asdoc目錄, 不過裏面都是 xml檔, 可以用下列command
+ bin/asdoc -doc-sources asdoc/
+把html 文件轉出來, 但是目前裏面也沒有把資料寫齊全
+
+actionscript 真正最新的資料在這裡
+http://help.adobe.com/en_US/ActionScript/3.0_ProgrammingAS3/
+裏面比
+http://livedocs.adobe.com/flex/3/html/Part6_ProgAS_1.html
+還豐富, 有flash player 10才能展現的效果, 比如kinematics & 3D., 麻煩的是它是以flash為中心的講解, 用了一些 fl.controls的東西, 在flex 並沒有相對應的東西
+
+
+adobe flash & flex文件起點
+http://www.adobe.com/support/documentation/en/flex/
+http://www.adobe.com/support/documentation/en/flash/
+
+也有中文.
+http://help.adobe.com/zh_TW/Flash/10.0_Welcome/
+
+學 flash ide的起點
+http://www.adobe.com/devnet/flash/?navID=gettingstarted
+
+照這裡的說法, flash 有下列UI component可以用,
+
+
+Button
+List
+TextArea
+ 
+CheckBox
+NumericStepper
+TextInput
+ 
+ColorPicker
+RadioButton
+TileList
+ 
+ComboBox
+ProgressBar
+UILoader
+ 
+DataGrid
+ScrollPane
+UIScrollBar
+ 
+Label
+Slider
+ 
+
+介紹如何用flash ide 拉UI component 建立swf
+Create the Greetings application
+
+
+不用到flex, flash自己似乎就有定義一些基本的ui control, ex. textfield
+其實, flash ui control 沒有 flex ui control 好用
+1. 缺乏layout manager
+2. flash ide 對flash ui control 的調整, size & position 遠不及flex builder好用
+3. flash ide 在actionscript的編輯上並不直覺, 仍然有frame觀念, 且無法直接指定method
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+要把flex or flash 內嵌在網頁, 要寫一段html 語法, 詳細請參考請參考這裡.  <object> 是給IE用的, <embed> 是給netscape 用的, 兩個語法不太一樣, 且支援的subtag也不同. 只有flashvar是真的有傳到flash去.
+ 
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+http://livedocs.adobe.com/flex/3/html/Part3_Flash_Player_APIs_1.html
+由於actionscript含括的比 flash還廣, 如果只是要控制純flash方面的東西,  相關api都在這裡
+
+shape 比sprite 快
+http://livedocs.adobe.com/flex/3/html/help.html?content=Drawing_Vector_Graphics_4.html
+Shape for a "canvas" for drawing content on-screen. In particular, if you want to create an instance for drawing shapes on the screen, and it won't be a container for other display objects, you'll gain significant performance benefits using Shape instead of Sprite or MovieClip.
+
+getTimer()傳回來的數值 單位是1/100 second
+
+flash 的dynamic sound api 有變化, 以前的samplecallback 都改成event:SampleDataEvent, 且 sample最好提供到2048個, 不然會只聽到一聲就停掉. 
+
+要把數值轉字串可以用這個函數
+String(_totalProcessTime / _processCount )
+
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+flex 4 增加了skin的觀念, 可以把外觀與邏輯切的很乾淨.
+
+mxml 增加了新的tag, 其實tag name都有相對的定義
+
+xmlns:fx="http://ns.adobe.com/mxml/2009"
+
+的意思就是 <fx ></fx>的定義都在上面那個link, 以此類推
+
+xmlns:s="library://ns.adobe.com/flex/spark"
+定義了 <s> </s>
+
+xmlns:mx="library://ns.adobe.com/flex/halo"
+定義了 <mx> </mx>
+
+flex 3 control 代號是Halo, <mx> 是其代表tag, flex4 control 代號是 spark, <s> 是其代表tag
+<fx> 似乎也只有flex 4才看得到.
+
+application 檔的tag是 <s:Application> </s:Application>
+skin 檔的tag是
+<s:SparkSkin
+xmlns:fx="http://ns.adobe.com/mxml/2009"
+xmlns:s="library://ns.adobe.com/flex/spark"
+xmlns:mx="library://ns.adobe.com/flex/halo">
+</s:SparkSkin>
+
+從mxml 2009開始, 非UI的component請宣告在, 例如
+<fx:Declarations>
+<s:HTTPService id="myhttp" />
+</fx:Declarations>
+
+<s:Label y="44" text="Add new employee"/>
+
+可以觀察到 httpservice宣告在<fx:declaration>內, <s:label> 宣告在<fx:declaration>外,
+"If possible, you choose always choose spark rather than mx components."
+
+tag 裏面除了指定property 也可指定 event handler, ex
+<s:HTTPService id="branchesDataService" url="data/branches.xml" result="branchesDataService_resultHandler(event)"/>
+這一行, id & url 都是property, result則是event handler, 目前的寫法意思是, 遇到result event時請去執行 branchesDataService_resultHandler這個function
+
+CSS檔不必用手寫, 這裡有現成的編修器, 直接成生code
+
+
+
+
+--------------------------------------------------------------------------------
+
+

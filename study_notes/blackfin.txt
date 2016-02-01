@@ -1,0 +1,34 @@
+blackfin
+--------------------------------------------------------------------------------
+
+
+
+  this page explains the difference of toolchain prefix.
+concluson: 
+bfin-uclinux  --> FLAT
+bfin-linux-uclibc --> FDPIC ELF
+
+沒有FDPIC ELF+ GLIBC嗎?
+
+有兩頁講dsp
+http://www.kemt.fei.tuke.sk/predmety/KEMT412_SPvT/_materialy/Manualy/VisualDSP/Blackfin_comp_man.pdf
+http://docs.blackfin.uclinux.org/doku.php?id=toolchain:libbfdsp
+
+ /opt/uClinux.alt/bfin-uclinux/bfin-uclinux/runtime/usr/include/裏面可以看到所有的 dsp functions header files
+
+講解builtin
+http://docs.blackfin.uclinux.org/doku.php?id=example-builtin
+
+multimedia optimization techniquest
+http://docs.blackfin.uclinux.org/doku.php?id=multimedia_optimizations
+
+uclinux-dist/user/blkfin-apps/mplayer/mplayer-svn-25211/libaf 底下有libaf , 裏面有equalizer, 但是看起來並沒有做任何bf optimization, 且sample似乎全是float
+
+用libbffastfp會比
+
+
+
+
+--------------------------------------------------------------------------------
+
+

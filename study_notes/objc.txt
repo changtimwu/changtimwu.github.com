@@ -1,0 +1,194 @@
+objc
+--------------------------------------------------------------------------------
+
+
+
+C 裡面的function call, objc 習慣叫做message
+
+C++裡的
+objecta->func1
+
+objc習慣寫成
+[receiver message]
+
+
+delegate 用callback function的觀念比較好理解
+
+for example
+C 裡面的qsort(), 就要註冊compare 的callback function
+
+一樣的道理在用objc實作qsort時, 就要先定義一個compare delegate, 這個delegate 要用 ＠protocol來規範這這個compare class的prototype
+
+@protocol compareDelegate
+-(BOOL) compare( obj1, obj2);
+@end
+
+接下來qsort的interface如下
+@interface qsort
+{
+	id <HelloDelegate> delegate;
+}
+@property (retian) id delegate;
+
+-(void) dosort( datas);
+@end
+
+實作如下
+@implementation qsort
+@synthesize delegate;
+-(void) dosort(datas)
+{
+	for (data in datas) {
+		self.delegate( data1, data2)
+	}
+}
+@end
+
+用的人必須實作compareDelegate
+
+@interface mysort <compareDelegate> {
+	qsort *asort;
+}
+
+-(void) init;
+-(void) dosort;
+@end
+
+@implementation mysort
+-(void) init
+{
+	[self.asort.delegate]=self;
+}
+
+-(void) dosort
+{
+	asort
+}
+-(BOOL) compare
+{
+
+}
+	
+@end
+
+
+--------------------------------------------------------------------------------
+
+
+我們以這邊的觀念來講delegate
+
+ http://stackoverflow.com/questions/626898/how-do-i-create-delegates-in-objective-c
+
+我們看一下NSWindow內的delegate 是這樣宣告的
+- (id < NSWindowDelegate >)delegate
+
+意思就是, 這個delegate 必須聽得懂NSWindowDelegate protocol, 再看看NSWindowDelegate protocol 漲什麼樣子
+(.... 一堆function)
+
+ NSWindow 內部到處佈滿了code 看看你這個delegate有沒有
+
+if([[self delegate] respondsToSelector:@selector(windowDidMove:)]) {
+
+實作 windowDidMove
+
+白話說delegate, 其實可以類比成driver, 比如你要實作 network driver, 
+network 裡面硬體無關的處理邏輯比如protocol stack 都寫好了, 剩下要實際硬體運作的code都集中在你的driver裡, 這時候driver 就是提供一個delegate,  protocol stack 會定義一個protocol, 意思就是想當他的delegate 必須要達成哪些項目, 你要根據這個protocol 來實作你的driver, 才能讓driver 當這些protocol stack 的delegate
+
+NSWindow 要求delegate到什麼程度就定義在NSWindowDelegate裡面, 一個protocol 裡面每個message 有個是optional, 有的是mandtory.  NSWindow 比較特別 reference 上面寫 All methods in this protocol are optional.
+
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+研究objective C 如何實作singleton的資料, 
+講法很多, 覺得有點亂,  
+
+http://cocoawithlove.com/2008/11/singletons-appdelegates-and-top-level.html
+apple official 
+stackoverflow
+
+決定參考cocos2d的作法就好  CCDirector.m
+
+--------------------------------------------------------------------------------
+
+
+
+dealloc 與release的差別
+
+calller都做 [receiver release ]
+
+內部都define
+-(void) dealloc
+
+
+--------------------------------------------------------------------------------
+
+
+
+There is a class like this
+
+@interface IRAnimationInstruction ()
+@property (nonatomic, readwrite, retain) NSString *keyPath;
+@end
+
+@implementation IRAnimationInstruction
+@synthesize keyPath;
+
+
+
+class 自己的method, 要access keyPath, 可以
+1. 直接存取(只有在instance method, 可以, instance method不行).
+
+if ( [keyPath isEqualToString:@"blahblah"])
+
+2. 透過accessor
+
+if ( [ self.keyPath isEqualToString:@"blahblah"])
+
+
+因為這個property 有宣告retain, 所以 property assign 的動作會把retainCount+1
+
+
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+一個object 有call 過 autorelease的話, 就不需要再去release了, [NSAutoreleasePool release]會幫忙做一次release
+但如果一個object 沒有call 過autorelease, 就要主動去release, 不然會   leak
+
+
+
+
+--------------------------------------------------------------------------------
+
+
+Protocol 就是不含實作的interface, 這裡解釋如下
+A Protocol in Objective-C is identical in functionality to an interface in Java, or a purely virtual class in C++.
+
+@protocol Printing-(void) print;@end
+
+代表有個protocol 叫做Printing, 裡面要求如果一個interface宣稱 conform Printing這個protocol的話, 那它一定要聽得懂 print 這個message
+
+#import <Foundation/NSObject.h>#import "Printing.h"@interface Fraction: NSObject <Printing, NSCopying> {    int numerator;    int denominator;}-(Fraction*) initWithNumerator: (int) n denominator: (int) d;-(void) setNumerator: (int) d;-(void) setDenominator: (int) d;-(void) setNumerator: (int) n andDenominator: (int) d;-(int) numerator;-(int) denominator;@end
+
+
+Fraction 是一個interface, 它繼承自NSObject 並且自告奮勇會實作 Printing & NSCopying
+
+到時候 Fraction 的implementation 除了要實作它自己宣告的那四個 messages( initWithNumerator, setNumerator, setDenominator, setNumerator)外, 還得實作Printing protocol 要求的print
+
+
+判斷一個object 是否聽得懂Printing protocol
+ if ( [obj conformsToProtocol: @protocol( Printing )] == YES ) 
+
+
+
+
+
+
+

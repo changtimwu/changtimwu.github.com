@@ -1,0 +1,274 @@
+iOS Audio Unit
+-------------------------------------------------------------------------------------
+Audio Unit 依用途可分為四類
+1 個Effect unit: iPod Equalizer, we are not sure 到底是可以自定EQ, 還是把iPod EQ套用在自己要輸出的audio上？
+2 個Mixing units: 3D mixer 是openal 在用的, 意思是把audio source 串到3D mixer 才有機會有3D 效果?
+The Multichannel Mixer unit provides mixing for any number of mono or stereo streams.  重點是可以混音stereo.   所以stereo 不能in 3D ?
+3個 I/O unit, he Remote I/O unit is the most commonly used. It connects to input and output audio hardware and gives you low - latency access to individual incoming and outgoing audio sample values.
+想要取得audio in sample之後做些處理後丟出去, 很適合用 Remote I/O
+
+ Voice-Processing I/O unit extends the Remote I/O unit by adding acoustic echo cancelation for use in a VoIP or voice-chat application. It also provides automatic gain correction, adjustment of voice-processing quality, and muting.
+適合voip 有gain correction, 與 AEC, 所以也可以拿來當做karaoke mic processing?
+
+The Generic Output unit does not connect to audio hardware but rather provides a mechanism for sending the output of a processing chain to your application. You would typically use the Generic Output unit for offline audio processing.
+不串hardware, 純output to memory...這部份除了轉檔 還可以?
+
+1個format convert 
+iOS 4 provides one Format Converter unit, which is typically used indirectly by way of an I/O unit.
+轉檔, 跟I/O unit 搭配使用
+
+
+Effect
+iPod Equalizer
+Mixing
+3D Mixer
+Multichannel Mixer
+I/O
+Remote I/O
+Voice-Processing I/O
+Generic Output
+Format conversion
+Format Converter
+
+
+Use the Two Audio Unit APIs in Concert
+iOS has one API for working with audio units directly and another for manipulating audio processing graphs. 
+API大致上分兩類, 一個是AudioUnit本身, 一個是設定graph
+
+When you host audio units in your app, you use both APIs in concert.
+
+   To work with audio units directly -- configuring and controlling them -- use the functions described in Audio Unit Component Services Reference.
+   To create and configure an audio processing graph (a processing chain of audio units) use the functions described in Audio Unit Processing Graph Services Reference.
+
+This document provides code examples for using both APIs but focuses on the audio processing graph API. Where there is a choice between the two APIs in your code, use the processing graph API unless you have a specific reason not to. Your code will be more compact, easier to read, and more amenable to supporting dynamic reconfiguration (see "Audio Processing Graphs Provide Thread Safety").
+能用 processing graph API要盡量用, 支援dynamic reconfiguration, 且也好讀
+
+ 把type, subtype, manufacture 三個都填對就可以用AudioComponentFindNext 找到自己要的audio unit
+Passing NULL to the first parameter of AudioComponentFindNext tells this function to find the first system audio unit matching the description, using a system-defined ordering. If you instead pass a previously found audio unit reference in this parameter, the function locates the next audio unit matching the description. This usage lets you, for example, obtain references to all of the I/O units by repeatedly calling AudioComponentFindNext.
+The second parameter to the AudioComponentFindNext call refers to the audio unit description defined in Listing 1-1.
+The result of the AudioComponentFindNext function is a reference to the dynamically-linkable library that defines the audio unit. Pass the reference to the AudioComponentInstanceNew function to instantiate the audio unit, as shown in Listing 1-2.
+You can instead use the audio processing graph API to instantiate an audio unit. Listing 1-3 shows how.
+Listing 1-3  Obtaining an audio unit instance using the audio processing graph API
+
+audiounit 是動態load 近來的, 
+
+假設要串接兩個audio unit, 分別是 Multichannel Mixer 與 remote IO
+
+AudioComponentDescription iOUnitDescription;
+iOUnitDescription.componentType          = kAudioUnitType_Output;    iOUnitDescription.componentSubType       = kAudioUnitSubType_RemoteIO;
+iOUnitDescription.componentManufacturer  = kAudioUnitManufacturer_Apple;
+iOUnitDescription.componentFlags         = 0;
+iOUnitDescription.componentFlagsMask     = 0;    
+ // Multichannel mixer unit
+AudioComponentDescription MixerUnitDescription;
+MixerUnitDescription.componentType          = kAudioUnitType_Mixer;
+MixerUnitDescription.componentSubType       = kAudioUnitSubType_MultiChannelMixer;
+MixerUnitDescription.componentManufacturer  = kAudioUnitManufacturer_Apple;
+MixerUnitDescription.componentFlags         = 0;
+MixerUnitDescription.componentFlagsMask     = 0;
+
+result =    AUGraphAddNode ( processingGraph, &iOUnitDescription, &iONode);
+這個寫法很特殊, 他目的是把iONode加進去processingGraph, 問題是ioNode 根本就還沒設定, 
+所以就是透過ioUnitDescription
+
+result = AUGraphOpen (processingGraph);
+result =    AUGraphNodeInfo ( processingGraph,mixerNode, NULL, &mixerUnit);
+但是AUNode 不能直接拿來操作, 還要用AUGraphNodeInfo轉成 真正的AudioUnit, 注意這個動作必須要在AUGraphOpen之後!!
+
+有些範例沒有使用AUGraph, 他們取得audio unit的方式會變成, 
+/ Get componentAudioComponent inputComponent = AudioComponentFindNext(NULL, &desc); // Get audio unitsstatus = AudioComponentInstanceNew(inputComponent, &audioUnit);
+也就是不經過audionode 直接就抓到audioUnit
+
+result = AudioUnitSetProperty ( mixerUnit,
+kAudioUnitProperty_ElementCount, kAudioUnitScope_Input, 0, &busCount, sizeof (busCount));
+轉成AudioUnit後我們就可以直接操作它了
+
+
+result = AUGraphSetNodeInputCallback ( processingGraph, mixerNode, busNumber, &inputCallbackStruct);
+AUNode不要丟掉, 還有作用, 可以用來設定callback
+
+
+The audio processing graph API uses another opaque type, AUNode, to represent an individual audio unit within the context of a graph. When using a graph, you usually interact with nodes as proxies for their contained audio units rather than interacting with the audio units directly.
+AUNode的用意是當audio unit 的proxy, 這樣就不需要直接去動 audio unit( why)
+
+An element is a programmatic context nested within an audio unit scope. When an element is part of an input or output scope, it is analogous to a signal bus in a physical audio device -- and for that reason is sometimes called a bus. These two terms -- element and bus -- refer to exactly the same thing in audio unit programming. This document uses "bus" when emphasizing signal flow and uses "element" when emphasizing a specific functional aspect of an audio unit, such the input and output elements of an I/O unit (see "Essential Characteristics of I/O Units").
+
+element 與bus 差不多意思, 逮表都是audio flow, 
+
+-----------------------------------------------------------------
+audio render callback 的內容
+callback 有兩種 
+1. input callback -> audio unit 每次缺sample 時來call, 把ioData留給你填滿
+2. output callback-> audio unit 每次output sample時來call( output 前還是output 後?), 你可以取用ioData內的資料, 進行比如錄音等等功能
+
+註冊callback 有兩種方式
+AUGraphSetNodeInputCallback
+與
+AudioUnitSetProperty(inRemoteIOUnit, kAudioUnitProperty_SetRenderCallback)
+
+
+callback function 內的ioData格式
+AudioUnitGetProperty( rioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 1, &thruFormat, &size);
+在沒有AUGraph的情況下, 設定callback 會是以下這種寫法
+status = AudioUnitSetProperty(audioUnit,                               kAudioOutputUnitProperty_SetInputCallback,                               kAudioUnitScope_Global,                               kInputBus,                               &callbackStruct,                               sizeof(callbackStruct));
+
+                        -------------------------                         | i                   o |-- BUS 1 -- from mic --> | n    REMOTE I/O     u | -- BUS 1 -- to app -->                         | p      AUDIO        t |-- BUS 0 -- from app --> | u       UNIT        p | -- BUS 0 -- to speaker -->                         | t                   u |                         |                     t |                         -------------------------
+
+
+remote I/O 的input bus 有兩個, output bus 也有兩個, 
+input bus 0: 代表 app 自訂
+input bus 1: 代表recording hardware
+output bus 0: 代表playback hardware
+output bus 1: 代表app 自定
+
+
+app 自定的意思就是你可以註冊一個callback 進去.  callback routine 內提供資料或抓取資料, 
+你如果對 hardware bus 註冊callback 也會成功, 但是永遠不會被call
+
+
+http://developer.apple.com/library/ios/documentation/MusicAudio/Conceptual/AudioUnitHostingGuide_iOS/Art/IO_unit.jpg
+
+remote I/O是一個特殊的audio unit,  原本的四個bus 請依上圖 簡化理解成 input element( input bus 1) 與 output element( output bus 0),  這兩個 element 的兩端, 分別都有一端是硬體, 另一端是app自訂, 兩端內部是互連的
+
+硬體那一端: 軟體無法直接存取, 
+app 自訂那一端: 軟體可以用callback 或用 AudioUnitRender取用
+
+我們舉個例子, coreaudio 都是採用所謂的pull mode, 也就是由data consumer 先啟動索求data, 而非由data producer 先啟動推送資料(push mode),  在這個例子中, speaker角色就是data consumer, 既然它架在element 0 它會 element 0 的 input scope pull資料
+
+所以我們會註冊一個callback在 remote IO audio unit的element 0 的input scope  , 寫法如下
+
+result = AUGraphSetNodeInputCallback( processingGraph, iONode, 0, &inputProc);
+
+以後speaker 每次需要資料就會觸發inputProc來要資料,  你在callback function內把想要送到speaker 的資料填好放到ioData, speaker就會聽到聲音
+舉個例子 假設我們想要做到 使用者在mic講什麼, speaker要直接聽得到, 我們該怎麼做呢?
+* 承上例 我們應該註冊在output element 的input scope(或者稱之為在input scope 的 element 0 ), 來餵送要送往 speaker 的資料
+*在callback 內, 我們用AudioUnitRender來取得 input element 的資料, 寫法如下
+AudioUnitRender( THIS->ioUnit, ioActionFlags, inTimeStamp, 1, inNumberFrames, ioData);
+    *  input element就是bus 1 ,  
+    * (為什麼不用指定 output scope?, 因為AudioUnitRender的文件上本身就指名了 inOutputBusNumber  The output bus to render for.)
+
+整個remote IO 的觀念可以用兩句來表達
+1. 想要抓mic 資料,  要去input element (bus 1) 的 output  scope 抓
+2. 想要餵給speaker 資料, 要去output element 的 input scope 餵
+
+----------------------------------------------------------------
+streamFormat 只對app 可自定的地方下就好, 所以我們會看到下底下這樣的 code
+
+/* 把 output element( bus 0)的 input scope 設定為streamFormat */
+result = AudioUnitSetProperty( ioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &streamFormat, sizeof (streamFormat));
+
+/* 把 input element( bus 1)的output scope 設定為streamFormat*/
+result = AudioUnitSetProperty( ioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 1, &streamFormat, sizeof (streamFormat));	
+
+至於 output element的 output scope 與 input element的 input scope 因為是硬體, 所以不要去設定它的streamformat
+----------------------------------------------------------------
+從官方範例 aurioTouch2 學習如何MIC passthrough to speaker(麥克風聲音從speaker 出來)
+
+FFTBufferManager 內部是用float32存samples, 裡面的 grabAudio 也只吃float32 samples
+
+int32 one = 1;
+
+AudioUnitSetProperty(inRemoteIOUnit, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Input, 1, &one, sizeof(one);
+要開啟MIC 這是固定寫法, I/O unit 的 bus0 就是ouput to speaker, I/O unit 的bus1 就是input from MIC
+
+底下節錄自SDK document, 意思如上句, 
+An I/O unit's bus 0 connects to output hardware, such as for playback through a speaker. Output is enabled by default. To disable output, the bus 0 output scope must be disabled, as follows:
+UInt32 enableOutput= 0;// to disable output
+AudioUnitElement outputBus = 0;
+
+AudioUnitSetProperty (io_unit_instance, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Output, outputBus, &enableOutput, sizeof (enableOutput));
+An I/O unit's bus 1 connects to input hardware, such as for recording from a microphone. Input is disabled by default. To enable input, the bus 1 input scope must be enabled, as follows:
+UInt32 enableInput = 1;// to enable input
+AudioUnitElement inputBus = 1;
+
+AudioUnitSetProperty ( io_unit_instance,
+kAudioOutputUnitProperty_EnableIO,
+kAudioUnitScope_Input,
+inputBus, &enableInput, sizeof (enableInput));
+A read/write UInt32 value valid on the input and output scopes.
+
+
+AudioUnitSetProperty(inRemoteIOUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &inRenderProc, sizeof(inRenderProc);
+把抓錄音的callback 註冊在 IOUnit 的 bus0的, I/O unit 的bus0 是output to hardware, 用意就是每次輸出到speaker 前, 可以透過callback 裡面的audiorenderxxx 抓到MIC samples, 疊到I/O data去, 這樣就可以聽到麥克風的聲音
+
+
+
+// set our required format - LPCM non-interleaved 32 bit floating point
+outFormat = CAStreamBasicDescription(44100, kAudioFormatLinearPCM, 4, 1, 4, 2, 32, kAudioFormatFlagsNativeEndian | kAudioFormatFlagIsPacked | kAudioFormatFlagIsFloat | kAudioFormatFlagIsNonInterleaved);
+		AudioUnitSetProperty(inRemoteIOUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &outFormat, sizeof(outFormat));
+AudioUnitSetProperty(inRemoteIOUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 1, &outFormat, sizeof(outFormat)); 
+把 I/O unit 的input  1( MIC), 與output(speaker) 都設定成float32 stereo
+
+		
+iOS AudioQueue
+--------------------------------------------------------------------------------
+
+
+
+AudioFileOpenURL( ): open the  audio file and handler is myInfo.mAudioFile
+AudioFileGetProperty(): to get the audio file's format 
+AudioQueueNewOutput(): open a new queue for playback.  register a callback function to be runn myinfo.m Queue is the handler
+
+this callback function is used to push data into the audio queue
+
+its prototype is AQTestBufferCallback( void *inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inCompleteAQBuffer)
+inUserData is &myinfo
+
+AudioFileReadPackets(): read some packets into memory( replace it with http for network audio apps)
+AudioQueueEnqueueBuffer(): enqueue the memory block filled with packets just read
+
+
+
+
+
+
+AudioQueue services and av
+You typically use Audio Queue Services in conjunction with Audio File Services (as described in "Sound Files") or with Audio File Stream Services (as described in "Sound Streams").
+Audio Queue Service are commonly used with Audio File services or with Audio File Stream Services.
+
+mixerNode, 0, remoteIONode, 0);
+This connects the output of the mixer node's only bus (0) to 
+
+ RemoteIO's bus 0, which goes through RemoteIO and out to hardware.
+
+
+remote I/O 代表的就是hardware, 跟它的bus 0 做connect 就會送到speaker, 跟它的bus 1 connect 就會得到mic
+
+
+coreaudio 有三個等級的api, 
+    AVAudioPlayer
+    AudioQueue -- 光audioqueue就可以做到同時錄放
+    AudioUnits -- 最低階 接近直接access hardware
+其他API包含
+    audio session
+    audio file services
+    audio file stream services
+    audio conversion services
+    extended audio file services (可以做到同時壓縮並且存檔)
+
+apple 官方的 Audio Queue Services Programming Guide 足夠讓你搞懂audio queue 但是缺乏完整範例
+apple 官方 Audio Unit Programming Guide
+請先基本看過一次, 記得把自定audio unit的部份跳掉
+
+audio unit 之間的stream format 最好都定16 bit PCM, 像底下這樣, 這樣你就不用處理8.24 fixed format
+// Describe formataudioFormat.mSampleRate			= 44100.00;audioFormat.mFormatID			= kAudioFormatLinearPCM;audioFormat.mFormatFlags		= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;audioFormat.mFramesPerPacket	= 1;audioFormat.mChannelsPerFrame	= 1;audioFormat.mBitsPerChannel		= 16;audioFormat.mBytesPerPacket		= 2;audioFormat.mBytesPerFrame		= 2;
+
+
+
+audio unit 並沒有包得像一個標準物件, 它的調整與設定都是用property 觀念, 即使設定callback也不例外, kAudioUnitProperty_SetRenderCallback.
+
+audio unit 每次設定property都要指定scope , scope 有三種, input, output, global, 有些property
+ 比如 kAudioUnitProperty_StreamFormat 因為適用於input and output必須要有獨立不同的值,   就要指定scope.
+
+RemoteIO 是一個特殊的audio unit , 你可以把它當作audio 硬體
+
+RemoteIO 預設的bus 編號很怪, input bus 1 代表mic
+
+audio unit 的callback 似乎只能註冊在 input, 因為只有AUGraphSetNodeInputCallback , 找不到AUGraphSetNodeOutputCallback
+
+很奇特的是, 如果不透過AUGraph, 直接設定audio unit, 卻又有一個
+kAudioOutputUnitProperty_SetInputCallback
+可以設
+
+超過一個一上的audiounit(remote IO) 建議用AUGraph 因為這樣就可以不用一直面對property
+

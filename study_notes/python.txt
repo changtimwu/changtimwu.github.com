@@ -1,0 +1,145 @@
+python
+--------------------------------------------------------------------------------
+
+
+
+HTTP Live Streaming Presentation
+
+--------------------------------------------------------------------------------
+
+
+
+[原]nginx折騰記（HTTP性能能測試，與Apache對比） - killkill - 博客園
+
+--------------------------------------------------------------------------------
+
+
+
+最常見的需求是
+
+輸入文字查其utf-8 or utf-16:
+
+>>> "至"
+'\xe8\x87\xb3'
+(快速查utf8)
+
+>>> sa = unicode("天", "utf-8")
+>>> sa.encode("utf-8")
+'\xe5\xa4\xa9'
+(可以查任何碼)
+
+>>> sa.encode("big5")
+'\xa4\xd1'
+(可以查任何碼)
+
+>>> sa
+u'\u5929'
+(utf16 請直解這樣查就好了)
+
+>>> print sa
+天
+(也可以印字串)
+
+知道unicode, 轉成字串, ex.
+>>> str=u'\u5929'
+>>> print str
+天
+
+比較正統的方式
+>>> str=unichr(0x5929).encode('utf-8')
+>>> print str
+天
+
+比較字串:
+>>> "一整天" > "一夜情"
+True
+
+
+--------------------------------------------------------------------------------
+
+
+
+ #!/usr/bin/python
+import sys
+f=open(sys.argv[1],'r+')
+f.truncate( int(sys.argv[2]))
+f.seek(0,2)
+print f.tell()
+f.close()
+
+
+--------------------------------------------------------------------------------
+
+
+
+list pack/unpack:
+list could be an individual argument to a function.
+
+arga=[1,2,3,4]
+argb='xx'
+somefunc( arga, argb)
+
+so if what you really want is to pass all elements of a list as arguments to a function, you can use argument unpack operator *.  For example,
+
+arga=[1,2,3,4]
+argb='xx'
+argab=[arga, argb]
+somefunc( *argab)
+
+
+ipython 0.10 + python 2.6 開debug mode有問題, 解決方式請看 https://bugs.launchpad.net/ipython/+bug/381069 裡的第18th reply
+開debug 的方式有
+
+1.  直接改source code, 加入下面
+    import pdb 
+	pdb.set_trace()
+  
+2. 
+python  -m pdb t1.py   or
+pdb t1.py
+3. ipython底下沒法用上面的command line, 請改用
+ipython
+In [1]: %run -d t1.py
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+class
+--------------------------------------------------------------------------------
+
+
+class 變數的規則, class 變數的確是所有   object共用一份, 但存取方式必須是class.var, 如果你是讀取object.var 那的確也可以access 到class.var, 但如果你是寫入object.var, 那就會進行copy-on-write, 這時候class.var != object.var
+
+class myclass(object):
+    objcount=0
+    def __init__( self, arg):
+        self.arg= arg
+        myclass.objcount+=1
+
+print myclass.objcount
+o1 = myclass( 'o1')
+o2 = myclass( 'o2')
+print myclass.objcount
+print o1.objcount
+print o2.objcount
+
+print 'after set object var'
+o2.objcount=100
+print myclass.objcount
+print o1.objcount
+print o2.objcount
+
+print 'after set class var to 300'
+myclass.objcount=300
+print myclass.objcount
+print o1.objcount
+print o2.objcount 
+
+
+
+--------------------------------------------------------------------------------
+
+

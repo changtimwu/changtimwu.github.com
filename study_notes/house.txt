@@ -1,0 +1,133 @@
+house
+--------------------------------------------------------------------------------
+
+
+
+馬凱：不能公開的秘密 | 名人堂 | 意見評論 | 聯合新聞網
+ 
+--------------------------------------------------------------------------------
+
+
+
+
+請善用Excel.
+於儲存格當中鍵入以下資料: =PMT(每期利率, 期數, 現值)即可得到答案.
+假設利率3%, 20年, 現值1600萬. 注意, 一年12期.
+於是你要輸入: =PMT(0.03/12, 20 * 12, 16000000)
+因此得到你每月要付: $88,735.62
+
+--------------------------------------------------------------------------------
+
+
+
+ 
+Why Your Home Isn't the Investment You Think It Is
+為什麼你的房子不是你所想像的投資.
+
+Too many people rely on their home as their primary savings strategy. That's a mistake.
+太多人將房子當作主要儲蓄策略.那可是個錯誤 .
+By DAVID CROOK
+March 12, 2007; Page R1
+Planning your retirement? Don't bet the house on it. 正在擬退休計畫嗎? 可別都押在房子上.
+
+Your home means a lot of things to you, most of them good. Your home gives comfort and protection to you and your family, and it could well embody all your material hopes and dreams.
+一間房子對你來說可能有許多意義, 大部分是美好的.  房子帶給你與家庭舒適與保護. 且結合了你的所有的希望與夢想在其中.
+But houses have become much more than just places to live. Your home is probably your biggest asset, and the price you could ask for it today is almost certainly much higher than what you paid for it back whenever.
+但房子可不只是個住的地方, 它可能是你最大的資產,  幾乎可以確定你想賣的價格幾乎絕對比你當初付的高得多.
+As a result, houses have become substitute credit cards, as profligate owners borrow their equity to finance everything from cars to vacations. Among thriftier owners, the equity they have built up in the family home has become a vital part of retirement planning -- a "fourth leg" of the now-unstable "company pension/personal savings/Social Security" stool that was long the model for a financially secure old age.
+Unfortunately for both groups, however, houses are not very good investments. For the grasshoppers, there's nothing quite as stupid as paying off your 2002 trip to Orlando in 2032, when you finally settle up your refinanced "cash out" 30-year mortgage. And for the ants, economic studies have demonstrated over and over that houses (1) cost more than most people make when they sell and (2) rarely match the long-term returns of stocks or other investments.
+And that's doubly true today, with much of the U.S. well into a real-estate recession. It's unlikely that homeowners in once-booming areas will see a return of skyrocketing prices anytime soon.
+"Real-estate investments suffer serious and sometimes prolonged downturns," writes economist W. Van Harlow in a new study of home equity and retirement from the Fidelity Research Institute in Boston. "A real-estate 'bust' could be quite damaging to an investor nearing retirement who relied too heavily on home equity."
+It may be late for a lot of homeowners to read this, but here it goes anyway: It's risky and bad planning to have too much of your net worth in your principal residence. No prudent stock-market player would put 60% or 70% of a portfolio in just one stock, but millions will hold that much or more of their total net worth in just one house.
+Food for thought:
+:: If you bought a house in Los Angeles in 1990, just as the real-estate market turned downward, you would have had to wait a decade for your home's value to return to what you paid.
+ 
+ :: If you bought in Rochester, N.Y., in 1980, you would have seen only a mediocre 4% annual growth for the next 25 years.
+ 
+ :: If you bought in Dallas in 1986, as the oil boom went bust, your home wouldn't have appreciated at all before 1998.
+ 
+So with all that in mind, here's a question-and-answer rundown of some financial issues of home owning.
+  HOME SWEETER HOME
+--------------------------------------------------------------------------------
+
+  
+ Here are five things you can do to better manage your number one asset
+ 
+ :: THINK DIFFERENTLY
+ It's a house, not a retirement fund. Stop thinking of your house as an investment, and recognize it for what it really is: an expensive installment-plan purchase that promises you a hefty rebate down the line. The best way to make a true profit on a home is to pay as little for it as you can. That means buy cheaper, buy quicker, buy smarter.
+ :: PAY EARLY, PAY OFTEN
+ Speed up your mortgage payments. A typical home today will end up costing its buyer $1 million over the next 30 years. The first way to significantly cut that cost is to reduce interest costs. Add $100 a month to a 6.25%, $300,000 loan payment, and you will shave almost four years of loan payments and save $57,000 of interest. Add an extra $500, and you will pay off the house in just 17 years and save $170,000. Caution: Don't defer retirement savings in favor of rapid mortgage payments. Do both.
+ :: SHARE THE BURDEN
+ Buy a two-family house or a house with a rental unit as your first home. Pay it off quickly, bulking up your monthly payments with your tenants' rent and paying off your mortgage early. Then use that house to buy your dream home. You will get out of debt more quickly, have more money to pay for your new home, save more in your retirement fund and use less of your regular income for future housing costs.
+ :: WATCH THE RENOVATING
+ Build a new kitchen -- or bath or bedroom -- because you want it or need it, not because it will make you a profit or enhance the value of your home. According to Remodeling magazine's annual report on the costs and value of home renovations, a top-of-the-line kitchen remodel like you see on TV or in shelter magazines will cost you $108,000 and return just $82,000 -- a loss of $26,000. Borrow the money, and your loss will be worse.
+ :: DON'T MOVE SO OFTEN
+ It's the best way to build equity and enjoy the benefits of rising values. According to a study by Harvard's Joint Center for Housing Studies, 15% of homeowners move every year -- or the equivalent of every U.S. homeowner buying and selling a home every seven years. Few homeowners have paid off more than 10% of their loan principal by that point. But they will have paid four times as much in interest. When they buy their new house, they start the mortgage clock all over again.
+ 
+                                                                               
+                                                                  --David Crook
+                                                                               
+ 
+Q: My home is my largest asset. Why shouldn't I rely on it to provide my nest egg?
+A: Because a house can be an inefficient means of investing, and it costs far more to buy and operate than you think. Homeowners can easily end up paying more to live in their houses than the supposed "profit" they make when they sell them.
+When most homeowners figure their returns, they don't do much more than subtract the price they paid from the price they received. Then they come up with a really big return because they paid only a 10% or 20% down payment. So they figure they made a huge "profit."
+But they didn't. That's because the costs of owning a home -- buying it with a long-term mortgage and then paying taxes on it, insuring it, repairing it, renovating it -- sap most of what most homeowners think they make in price appreciation.
+Houses are nice financially because there are not many other things you buy that actually go up in value, and not many things can put a six-figure check in your pocket when you sell them. But don't delude yourself: You've already spent most of that check, and you are likely to spend the rest in just a few days when you buy a new home.
+Think of your sale proceeds another way: not as a true profit, but as a huge rebate. Some of the thousands of dollars that you paid into the house over the years are being returned to you -- sometimes with a bonus, often without.
+Q: But it's certainly better to buy a house than to pay rent.
+A: That depends on when you buy, and how long you own. Buy at the wrong time -- like during the kind of buying frenzy that much of the country has just experienced -- and you could well end up wishing you had rented instead.
+Boom market or bust, home buying has so many extra costs -- from upfront "points" paid to a lender to title insurance and appraisal fees -- that over the first five to seven years, a renter who invests the equivalent of a down payment in stocks could easily do better overall than a house buyer. Compounding that problem: Most homeowners move within seven years.
+As the ownership timeline stretches out to 15, 20 or 30 years, however, the buyer will almost certainly do better than the renter, especially given the tax benefits of paying mortgage interest over traditional rent and the big rebate when the owner finally sells.
+But the typical buy vs. rent argument clouds the more important point: A house is an inefficient way of building wealth.
+Q: But I have to live somewhere! And I have to pay something for a place to live. Certainly it's better to pay "deductible" mortgage interest than rent.
+A: Buying a house with a long-term mortgage is just another form of renting.
+Mortgage interest is rent that you pay to your lender for the use of its money rather than to a landlord for the use of his house. Yes, the government picks up a portion of that with the tax deduction, but most of your monthly payment neither builds equity nor is deductible. It just goes down the same black hole that sucks up any other renter's money. And it takes 20 years before a typical borrower pays more principal each month than interest.
+"I have to pay something" is a rationale that home buyers use for going deeply in debt and paying tens or hundreds of thousands of dollars in interest to buy a house that, they mistakenly believe, will make a big profit for them down the line.
+Q: So how much does a house really cost?
+A: You can easily end up spending three times the purchase price of a house. Today's buyer of a typical $300,000 single-family home who takes out a 30-year loan will end up paying the price of the house again just in interest. Add 30 years of property taxes, homeowner's insurance, regular maintenance and a couple of big-ticket repairs or improvements, and the total cost of buying the home could easily top out at well over $1 million.
+Q: Yes, but the house will be worth much, much more.
+A: Maybe, maybe not. Whether you come out ahead depends on where and when you buy. Even cash buyers might be surprised to see that they can't be assured of making a profit.
+"The Costs of Home Ownership" table is a simplified rundown on a typical single-family home -- a house that was bought for $50,000 in 1977 -- based on national appreciation rates as reported by the Office of Federal Housing Enterprise Oversight (OFHEO). Included are modest estimates of other home-owning costs (not adjusted for inflation). To keep things simple, there are no transaction costs, no additional borrowing to finance improvements and no refinancing costs, all of which would drive the expenses even higher. It's not a pretty picture.
+Q: Those numbers don't seem realistic for where I live. You can't buy a house here for that kind of money.
+A: To be sure, not everyone did so badly as the national average. OFHEO's Home Price Index calculator puts the average 30-year appreciation for a house in the ever-pricey San Francisco metropolitan area at 1,125%, compared with the national average of just 481% (http://www.ofheo.gov/HPI.asp). So if you bought that $50,000 house in San Francisco in 1977, it would be worth about $613,000 today and, assuming much the same costs of ownership, you'd make a true profit of $219,000.
+You would have done well in other coastal metro regions, too. The comparable house would be worth about $593,000 in Los Angeles (up 1,085%), $549,000 in New York (998%) and $432,000 in Washington (763%).
+But some other big cities didn't fare as well. You'd be in the red in Chicago, where home values rose 463% and the house would be worth $282,000. Your house would be valued at only about $176,000 (252%) in Dallas and just $147,000 in Houston (193%).
+Q: But even if I had bought in Texas, I'd still essentially break even. Buying let me live "rent free" for 30 years.
+A: Living "rent free" is moving in with your parents or your wealthy lover in Tuscany. You didn't live rent free. You had some of your rent money subsidized and then some more rebated.
+Yes, you are sitting on a lot of home value, but you've spent a lot -- probably more than the house is worth -- getting what you have. And you almost certainly lost some investing opportunities along the way while you were spending your money buying the house.
+And that's assuming everything breaks your way. If you don't sell at the top of the market, you could see stagnant or falling values for a while. There have been real-estate bubbles before. In San Francisco, where it looks like prices may have hit their high mark in the third quarter of 2006, home values peaked in early 1990 before falling for the next eight years. Houston saw a modest surge in the '80s, followed by an equally modest decline and then two decades of grindingly slow appreciation.
+Q: That's still money that I wouldn't see otherwise. Even getting just some of my money back is better than getting none.
+A: But there's another kicker. You haven't gotten any money back yet. All you have is a house that's 30 years older than when you moved in. In order to realize your windfall, you'll have to borrow against it or sell it.
+If you borrow against a house you've paid off, then you will start mortgage payments all over again.
+If you sell it, what are you going to do with that big check in your pocket after you've walked around for a couple of hours feeling richer than you've ever been? You'll probably spend most of it in just a day or so buying another house.
+Q: So I'll downsize, find a smaller, cheaper house, buy it and then invest the rest of the money.
+A: Prices tend to rise or fall across an entire market. So if you want to stay in the same metropolitan region and save a big chunk of your rebated nest egg, you should be prepared to go significantly downscale -- move to a much less desirable neighborhood.
+ NOT AS RICH AS YOU THINK
+--------------------------------------------------------------------------------
+
+  
+ See a table that shows the costs of buying and owning a hypothetical home in suburban Washington. (Adobe Acrobat is required.)
+ 
+Consider a hypothetical Washington-area couple who bought their home for $55,000 in 1977. (See a complete rundown on the house. Adobe Acrobat is required.)
+With improvements and market appreciation they appear to have done quite well. If they sell their house today, they could expect to get something in the neighborhood of $860,000. And they would walk out of the closing meeting with a rebate check of about $550,000, of which about $175,000 would be profit.
+But they're facing a tough market where the median price of a condo is two-thirds the cost of a single-family home. They don't have enough money to make the most obvious move down -- from their house to a comparable apartment that would cost around $575,000.
+Q: Then I'll move to someplace cheaper, like Houston.
+A: You still face borrowing or spending all or most of your cash on your new house -- and you will still have maintenance, property taxes, insurance and other "I have to pay something" costs.
+If our Washington couple chooses to leave and move to a cheaper housing market, they will still have costs greater than they think. Popular retirement communities are usually cheaper than big metropolitan areas, but they are not so cheap that sale proceeds will plant them on a country-club fairway and pay for the lifestyle that goes with it.
+According to Coldwell Banker's often-cited home-comparison calculator, a house comparable to the place in Washington would cost $439,000 in Fort Myers, Fla., or $407,000 in Orlando. The couple would do a little better moving to Tucson, Ariz., where the comparable house costs $281,000 -- leaving the sellers with less than half of their rebate windfall.
+So yes, cashing out in Washington -- or San Francisco or New York -- will give you enough money to buy a nice place on a golf course somewhere in the Sun Belt. And you might have $200,000 or $300,000 left over.
+Q: So what can I do if I've planned too much of my retirement around my investment in my home?
+A: If you already own your home, you can still rein in your expenses, and diversify your investments. Unfortunately, there's not a lot you can do about reducing many of the costs of home owning, such as property taxes or replacing a roof.
+But you do have control over two of the biggest home-owning costs: interest and renovations. Both are big money losers. Even with the tax deduction, most of your mortgage interest is still just wasted rent money. So accelerating your principal payment will result in huge savings down the line. Add $300 a month to the payment on a 6.25%, $300,000 loan, and you'll save 10 years of payments and $83,000 of after-tax money -- enough to put a kid through a public university.
+Few, if any, renovations make a profit. A new kitchen or family room might raise the resale value of a house, but rarely as much as they cost to build. And if the homeowner borrows the money, the renovation work could end up costing two or three times what the contractor charged.
+If you don't already own your own home, do the math. Don't buy if you think you'll be moving in just a few years. Don't buy a house that's too big for your needs or so expensive that you will strain to pay for it simply because "it's a good investment." It's not.
+                                                                               
+--Mr. Crook is editor of The Wall Street Journal Sunday and author of "The Wall Street Journal Complete Real-Estate Investing Guidebook."
+                                                                               
+
+
+
+
+--------------------------------------------------------------------------------
+
+

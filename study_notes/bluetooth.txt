@@ -1,0 +1,228 @@
+bluetooth
+--------------------------------------------------------------------------------
+
+
+
+asfasd
+--------------------------------------------------------------------------------
+
+
+
+asfdasd
+--------------------------------------------------------------------------------
+
+
+
+ 如題,本人使用p3600i時當手機與電腦同步後outlook發生問題結果如下(無法以您正在使用 的outlook設定檔來同步,因為之前已設定不同的設定檔,獲釋設定檔有密碼保護
+我從前也有發生過，我的小小經驗是，在PPC中的，設定--連線--中的USB 至 PC，對其中的(啟用進階網路功能)不選取，我就可以Sync了。
+我是用HTC-TyTn II的。希望對你有用。
+
+--------------------------------------------------------------------------------
+
+
+
+
+bluetooth in ubuntu notes
+
+-----------------------
+hciconfig 
+hci0: Type: USB
+BD Address: 00:00:00:00:00:00 ACL MTU: 0:0 SCO MTU: 0:0
+DOWN 
+RX bytes:0 acl:0 sco:0 events:0 errors:0
+TX bytes:0 acl:0 sco:0 commands:0 errors:0
+
+hciconfig hci0 up piscan 
+hci0: Type: USB
+BD Address: 00:0D:18:01:44:A1 ACL MTU: 384:8 SCO MTU: 64:8
+UP RUNNING PSCAN ISCAN 
+RX bytes:961 acl:0 sco:0 events:27 errors:0
+TX bytes:361 acl:0 sco:0 commands:27 errors:0
+
+
+hcitool scan
+
+ion@ion-desktop:~/packages/world_debug/world-0.0.1$ hcitool scan
+Scanning ...
+00:19:E3:EB:B6:82 timwu's mac
+00:23:12:C8:46:6B Tim Wu's iPhone
+
+rfcomm bind 0 00:19:E3:EB:B6:82  1
+ls /dev/rfcomm0 
+/dev/rfcomm0
+
+in mac: 
+右上角bluetooth icon
+"打開bluetooth 偏好設定"
+選"進階"
+點選最下面的"+" button 兩次直到
+"裝置用來聯接此電腦的序列附"會出現"SerialPort-1"為止, 類型選RS-232
+開"終端機" 
+ls /dev/tty*
+應該會看到 /dev/tty.SerialPort-1
+------------------------------
+
+
+--------------------------------------------------------------------------------
+
+
+
+
+ve$ sdptool browse
+
+Browsing 00:19:E3:EB:B6:82 ...
+Service Name: Group Ad-hoc Network Service
+Service Description: Personal Group Ad-hoc Network Service
+Service RecHandle: 0x10006
+Service Class ID List:
+  "PAN Group Network" (0x1117)
+Protocol Descriptor List:
+  "L2CAP" (0x0100)
+	PSM: 15
+  "BNEP" (0x000f)
+	Version: 0x0100
+	SEQ8: 0 6 dd b
+Language Base Attr List:
+  code_ISO639: 0x656e
+  encoding:    0x6a
+  base_offset: 0x100
+Profile Descriptor List:
+  "PAN Group Network" (0x1117)
+	Version: 0x0100
+
+Service Name: AVRCP Target
+Service RecHandle: 0x10002
+Service Class ID List:
+  "AV Remote Target" (0x110c)
+Protocol Descriptor List:
+  "L2CAP" (0x0100)
+	PSM: 23
+  "AVCTP" (0x0017)
+	uint16: 0x100
+Profile Descriptor List:
+  "AV Remote" (0x110e)
+	Version: 0x0103
+
+Service Name: Network Access Point Service
+Service Description: Personal Ad-hoc Network Service Access Point
+Service RecHandle: 0x10007
+Service Class ID List:
+  "Network Access Point" (0x1116)
+Protocol Descriptor List:
+  "L2CAP" (0x0100)
+	PSM: 15
+  "BNEP" (0x000f)
+	Version: 0x0100
+	SEQ8: 0 6 dd b
+Language Base Attr List:
+  code_ISO639: 0x656e
+  encoding:    0x6a
+  base_offset: 0x100
+Profile Descriptor List:
+  "Network Access Point" (0x1116)
+	Version: 0x0100
+
+Service Name: OBEX Object Push
+Service RecHandle: 0x10003
+Service Class ID List:
+  "OBEX Object Push" (0x1105)
+Protocol Descriptor List:
+  "L2CAP" (0x0100)
+  "RFCOMM" (0x0003)
+	Channel: 10
+  "OBEX" (0x0008)
+Language Base Attr List:
+  code_ISO639: 0x656e
+  encoding:    0x6a
+  base_offset: 0x100
+Profile Descriptor List:
+  "OBEX Object Push" (0x1105)
+	Version: 0x0100
+
+Service Name: Voice Gateway
+Service RecHandle: 0x10008
+Service Class ID List:
+  "Headset Audio Gateway" (0x1112)
+  "Generic Audio" (0x1203)
+Protocol Descriptor List:
+  "L2CAP" (0x0100)
+  "RFCOMM" (0x0003)
+	Channel: 2
+Language Base Attr List:
+  code_ISO639: 0x656e
+  encoding:    0x6a
+  base_offset: 0x100
+Profile Descriptor List:
+  "Handsfree Audio Gateway" (0x111f)
+	Version: 0x0100
+
+Service Name: SerialPort
+Service RecHandle: 0x10004
+Service Class ID List:
+  "Serial Port" (0x1101)
+Protocol Descriptor List:
+  "L2CAP" (0x0100)
+  "RFCOMM" (0x0003)
+	Channel: 3
+Language Base Attr List:
+  code_ISO639: 0x656e
+  encoding:    0x6a
+  base_offset: 0x100
+Profile Descriptor List:
+  "Serial Port" (0x1101)
+	Version: 0x0100
+
+Service Name: OBEX File Transfer
+Service RecHandle: 0x10005
+Service Class ID List:
+  "OBEX File Transfer" (0x1106)
+Protocol Descriptor List:
+  "L2CAP" (0x0100)
+  "RFCOMM" (0x0003)
+	Channel: 15
+  "OBEX" (0x0008)
+Language Base Attr List:
+  code_ISO639: 0x656e
+  encoding:    0x6a
+  base_offset: 0x100
+Profile Descriptor List:
+  "OBEX File Transfer" (0x1106)
+	Version: 0x0100
+
+Service Name: SerialPort-1
+Service RecHandle: 0x10001
+Service Class ID List:
+  "Serial Port" (0x1101)
+Protocol Descriptor List:
+  "L2CAP" (0x0100)
+  "RFCOMM" (0x0003)
+	Channel: 1
+Language Base Attr List:
+  code_ISO639: 0x656e
+  encoding:    0x6a
+  base_offset: 0x100
+Profile Descriptor List:
+  "Serial Port" (0x1101)
+	Version: 0x0100
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+真正的中間層protocol 只有6個,  
+Audio/Video Control Transport Protocol (AVCTP)
+Audio/Video Distribution Transport Protocol (AVDTP)
+Bluetooth Network Encapsulation Protocol (BNEP)
+Object Exchange (OBEX)
+Telephony Control Protocol (TCP)
+RFCOMM with TS 07.10
+
+大部份的profiles 都是based on 這6個protocol, 少數例外(ex. hid profile),  而這6個protocol 大部份都是based on L2CAP
+
+
+
+--------------------------------------------------------------------------------
+
+

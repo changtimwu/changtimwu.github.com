@@ -1,0 +1,412 @@
+cocos2d
+--------------------------------------------------------------------------------
+
+
+
+如何正確驅動retina:
+retina display的解析度高達 640x960 ,  是一般 320x480的兩倍解析度
+
+ iOS內部的UIKit程式大部分不需要在程式內去驅動, 只要根據官方手冊建議的, 把圖檔另存成高解析度版, 檔名尾端補上@2X就可以了
+程式怎麼看都只能access 到 320x480
+
+如果真的希望程式自己畫的東西都呈現高解析度, 必須啟動opengl
+
+1. 針對opengl 的uiview 下底下這一行
+view.contentScaleFactor=[[UIScreen mainScreen] scale];
+
+2. 底下會回報實體裝置解析度
+
+
+glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
+glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
+NSLog(@"createFramebuffer: width=%d, height=%d", backingWidth, backingHeight);
+
+glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &framebufferWidth);
+glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &framebufferHeight);
+
+3. vertex座標都改用新的解析度
+參考文件
+http://www.cocos2d-iphone.org/wiki/doku.php/prog_guide:how_to_develop_retinadisplay_games_in_cocos2d
+
+
+--------------------------------------------------------------------------------
+
+
+
+The only tricky bit is that in Landscape mode Cocos2D has 0,0 at the bottom-left side of the screen, while OpenGL has it at the bottom-right corner as it doesn't consider the orientation of the screen.
+http://stackoverflow.com/questions/3177751/cocos2d-iphone-sprite-cliping-mask-frame
+
+
+--------------------------------------------------------------------------------
+
+
+
+typical cocos2d sample source structure
+
+可以用底下的綠色menu bar 來navigate 每項測試.
+每項測試繼承 SpriteDemo, SpriteDemo再繼承CCLayer, 所以每一項測試其實都是個layer
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+把一個測試呈現出來的標準流程, 這是cocos2d 的標準pattern, 觀念上明明是scene, 但是實作時仍繼承CCLayer
+
+把你的畫面都寫成 CCLayer, 然後 產生一個空的scene, 把你的layer加到那個scene後 return 
+1. 產生一個空的scene, 產生一個該測試的layer, 把layer 加到scene
+CCScene *scene = [CCScene node];
+// 'layer' is an autorelease object.
+HelloWorld *layer = [HelloWorld node];
+// add layer as a child to scene
+[scene addChild: layer]; 
+
+CCLayer ＆ CCScene 類別要initial 新的instance 作法很特別. 是用 [layerclass node]的方式, 而不是一般熟悉的[[layerclass alloc] init], 且所有的CCNode似乎都是這種作法. 以底下為例, [HelloWorld node] 其實就會自己call [[HelloWorld alloc] init].
+
+2. 把scene 給director跑
+CCDirector *director = [CCDirector sharedDirector];
+[director runWithScene: [HelloWorld scene]];
+
+
+--------------------------------------------------------------------------------
+
+
+
+因為再大多數測試裡, 一個scene裡面只有含一個layer, 所以每個測試interface都會定義一個 singleton
++(id) scene
+{
+// 'scene' is an autorelease object.
+CCScene *scene = [CCScene node];
+// 'layer' is an autorelease object.
+HelloWorld *layer = [HelloWorld node];
+// add layer as a child to scene
+[scene addChild: layer];
+// return the scene
+return scene;
+}
+直接把自己包成scene, 方便director執行( 因為director只能runWithScene)
+
+--------------------------------------------------------------------------------
+
+
+
+CCScene v.s. CCLayer v.s. CCNode
+
+http://www.cocos2d-iphone.org/api-ref/1.0.0/interface_c_c_scene.html
+文件上對CCScene的解釋
+
+CCScene is a subclass of CCNode that is used only as an abstract concept.
+CCScene an CCNode are almost identical with the difference that CCScene has it's anchor point (by default) at the center of the screen.
+For the moment CCScene has no other logic than that, but in future releases it might have additional logic.
+It is a good practice to use and CCScene as the parent of all your nodes.
+
+CCScene 只是個概念, 實作功能跟CCNode一樣, 差別在CCScene沒有支點, 他的目的是拿來當所有 node的 parent( 當底)
+
+CCLayer:
+
+CCLayer is a subclass of CCNode that implements the TouchEventsDelegate protocol.
+All features from CCNode are valid, plus the following new features:
+It can receive iPhone Touches
+It can receive Accelerometer input CCLayerColor is a subclass of CCLayer that implements the CCRGBAProtocol protocol.
+
+文件上寫 CCLayer與CCNode功能差不多, 但是多了可接收touch 與加速計, 所以實際看程式, 
+觀念是
+CCNode on CCLayer on CCScene on CCDirector
+CCDirector runWithScene CCScene
+CCScene addChild CCLayer
+CCLayer addChild CCNode
+
+
+--------------------------------------------------------------------------------
+
+
+
+scene 如何自己結束掉?
+現在把MIDI player 寫成一個CCLayer, 但是歌曲結束時如何把自己給結束(terminate a CCLayer?)
+
+the official examples of cocos2d should such a way
+
+[[CCDirector sharedDirector] replaceScene: s]
+
+在官方範例裡 只有runWithScene(第一次) & replaceScene(換場景), 沒有killScene可以用
+ 
+大多數 cocos2d 程式都是一開始就進入scene, 很少像卡拉OK這樣, 前面都是標準UIKit, 播歌時才轉換到cocos2d
+* 另一種作法, 先沿用cocos2d 標準方式, 一開始就進入 scene, 然後在裡面開UIKit
+
+--------------------------------------------------------------------------------
+
+
+
+所以Class是這樣用? 有點像 static
+Class nextAction()
+{
+sceneIdx++;
+sceneIdx = sceneIdx % ( sizeof(transitions) / sizeof(transitions[0]) );
+NSString *r = transitions[sceneIdx];
+Class c = NSClassFromString(r);
+return c; 
+}
+
+--------------------------------------------------------------------------------
+
+
+
+每個測試只要overriding title與 nEnter()就可以了, onEnter是CCNode定義的, title是spriteDemo定義的
+--------------------------------------------------------------------------------
+
+
+
+layer一開始設定 self.isTouchEnabled = YES;
+並且overriding 底下幾個跟touch有關的function, 就可以接收user input
+
+-(BOOL) ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event
+{
+	[self updateSize:touch];
+	return YES;
+}
+
+-(void) ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event 
+{
+	[self updateSize:touch];
+}
+-(void) ccTouchCancelled:(UITouch *)touch withEvent:(UIEvent *)event
+{
+	[self updateSize:touch];
+}
+-(void) ccTouchMoved:(UITouch *)touch withEvent:(UIEvent *)event
+{
+	 [self updateSize:touch]; 
+}
+
+
+--------------------------------------------------------------------------------
+
+
+
+
+touch座標需要解譯一下
+-(void) updateSize:(UITouch*)touch
+{ 
+	CGPoint touchLocation = [touch locationInView: [touch view]]; /* get UIKIT touch coordinate */
+	touchLocation = [[CCDirector sharedDirector] convertToGL: touchLocation];  /* convert into GL coordinate */
+
+	CGSize s = [[CCDirector sharedDirector] winSize];
+	CGSize newSize = CGSizeMake( abs( touchLocation.x - s.width/2)*2, abs(touchLocation.y - s.height/2)*2); 
+}
+
+
+In landscape mode, original point of UIKIT & GL are both at left-bottom.   but when I move touch point to right a bit
+UIKIT's  y is increased.
+GL's x is increased.
+
+
+--------------------------------------------------------------------------------
+
+
+
+glBlend 很複雜, 
+http://www.opengl.org/sdk/docs/man/xhtml/glBlendFunc.xml
+能否做到塗字?
+
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+想要背景透出video記得要改CCDirector.m  裡面改一行 glClear( 0.0f, 0.0f, 0.0f, 0.0f);
+--------------------------------------------------------------------------------
+
+
+
+opengl related functions 
+opengl 裡面如何讀寫一塊texture
+
+
+glTexImage2D -- 開新的texture, 用法步驟, glGenTextures, glBindTexture, glTexImage2D
+glCopyTexImage2D
+glCopyTexSubImage2D
+ These commands include glBufferSubData, glBufferData, glMapBuffer, glTexSubImage, glCopyTexImage, glCopyTexSubImage,glReadPixels, glBindFramebuffer, glFlush, and glFinish.
+
+
+
+glBitmap
+
+glReadPixels
+glReadBuffer
+glDrawPixels
+glDrawBuffer
+
+glCopyPixels
+glPixelTransfer
+
+
+glRasterPos2d
+
+quad 是CCSprite能變化特效的重點, 
+quad 裡面有四個點, 分別是tl,tr,bl,br,  型別是 ccV3F_C4B_T2F,
+ccV3F_C4B_T2F 包含 vertex, color, 與coordinate
+
+CCSprite 的draw function的實作方式, 
+texture 的四個點已經記錄在quad_
+
+使用
+glVertexPointer 指向quad_內四個 vertex
+glColorPointer 指向quad_內四個 color 
+glTexCoorPointer 指向quad_內四個 texCoord ( 什麼是texture coordinate -> http://www.opengl.org/resources/code/samples/sig99/advanced99/notes/node52.html)
+
+
+然後用
+glDrawArray 
+就可以把所有特效畫出來了....Why?
+
+  glDrawArrays specifies multiple geometric primitives with very few subroutine calls. Instead of call-
+	   ing a GL procedure to pass each individual vertex, normal, texture coordinate, edge flag,  or  color,
+	   you  can  prespecify  separate  arrays  of  vertices, normals, and colors and use them to construct a
+	   sequence of primitives with a single call to glDrawArrays.
+
+感覺glDrawArrays可以把一堆繪圖動作事先傳給它, 它做一次幫你畫好, particles 似乎也是以glDrawArray實作, 在opengl es 1.1 沒有shader的時代, 
+就是用glDrawArray達成高效率繪圖
+
+
+--------------------------------------------------------------------------------
+
+
+
+有空把 apple 官方文件 iphone opengl es programming guide看完
+powervr 的opengl 1.1 function 其實內部都是重新用 opengl 2.0 裡的shader implement的
+
+觀念與問題:
+1. 由於opengl 是pipeline的繪圖架構, 所以似乎不再能以隨意讀寫frame buffer or texture buffer 的方式來修改畫面or圖檔
+2. CCTexture2D是unmuntable
+3. 一個 sprite 不能自變, 只能畫東西上去蓋掉它
+4. 可以看一下CCDrawPrimitive.m 裡面的, 即使是ccDrawPoint 也是使用glVertexPointer + glDrawArrays來達成, 並不是直接修改framebuffer
+5. CCRenderTexture 已經使用FBO 實作, 難道沒有任何memory pointer可以讀寫?
+6. 看一下tint屬性是怎麼實作的?
+
+新的繪圖觀念:
+1. opengl 裏面做animation, 觀念上似乎是每個frame必須重畫, FPS 30就是每秒重畫30次, 每次frame都是一張空白畫面, 不會因為上次畫過, 就暫留內容下來, 
+自己必須決定這一次frame瞬間要有哪些東西呈獻在螢幕上, 
+2. 所有要貼的texture已經全部都放在GPU了, 所以速度並不會慢?
+3. 古早以前的暫留觀念, 只有對畫面更動量少的app實用, 那種每個frame都有大量變動的animation, 會變得需去費心擦掉上一次的痕跡, 反而麻煩.
+4. 可以試著overload draw這個function, 你可以發現不每次畫的話, 東西就是會不見.
+5. 就是這樣, 才有FPS的這種東西, 不然傳統直接修改framebuffer記憶體, 連怎樣算 更新完一個frame 都無法定義, 更不可能算出fps
+
+
+1. 事先render好兩份texture,   normal texture(還沒塗好的) and highlighted texture(塗好字的)
+2. normal texture可以直接render 成CCTexture2D, 但highlighted texture要再原始一點, 最好render 在client方便存取的記憶體內, 因為變成CCTexture2D就代表進GPU了, 讀取反而不容易
+3. 把normal texture貼在一份RenderTexture內, 這樣觀念上不用每次重貼(實際上還是有)
+4. root scene add the renderTexture as a child 
+5. 把highlighted texture取一個region出來 (how?) 形成一塊pixel data
+6. 把剛剛取得的pixel data轉換成gl primitive 使用glDrawArray的方式畫進去RenderTexture.
+
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+Texture coordinates are the means by which texture image positions are assigned to vertices.
+texture image的位置已經透過vertex來指定了
+
+ The per-vertex assignment of texture coordinates is the key to mapping a texture image to rendered geometry. 
+每個都要vertex都配上一個texture coordinate是texture 能夠 mapping 到rendered geometry 的關鍵
+
+During rasterization, the texture coordinates of a primitive's vertices are interpolated across the primitive so that each rasterized fragment making up the primitive has an appropriately interpolated texture coordinate. 
+
+在rasterization時, 會以texture coordinate做內插, 讓所有的rasterized fragment都有一個相對應的texture coordinate
+
+A fragment's texture coordinates are translated into the addresses of one or more texels within the current texture. The texels are fetched and their color values are then filtered into a single texture color value for the fragment. The fragment's texture color is then combined with the fragments color.
+texture color 跟fragment color 會combine?
+
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+正解：
+使用CCProgressTimer, 
+
+如果一個東西秀出來/消失/呈現的方式很特別, CCSprite裡面可供調整的屬性都不合用, 就要學CCProgressTimer,
+它繼承CCNode, 自己也包含一份sprite, 新增加了percentage & type這兩種屬性, 可以描述要怎麼秀(左右上下方向),  要秀多少.
+
+
+ 
+
+--------------------------------------------------------------------------------
+
+
+
+1. 理論上, UIView 可以多個疊來疊去, 底下層的view(接下稱之為parent view) 有任何座標轉換(ex. setTransform), 上層view應該都會一同生效, 無論它是OpenGL or Video
+
+2. cocos2d 的GLView 貼在現成的UIView上面, 在未知情況下, 會導致整個GLView有部分座標作用不到. 
+3. MPMoviePlayer的view則很正常, 可以伴隨parent view一起轉
+
+4. cocos2d 的旋轉 與 UIKit的旋轉方式不一樣, 
+
+cocos2d是使用 setDeviceOrientation, setDeviceOrientation在去call glRotate達成
+UIKIT是使用setTransform CGAffineTransformMakeRotation
+
+4. 目前解法：
+a. 把GLView 跳過parent, 直接貼在keyWindow上, 
+b. video照舊貼在原本的parent view上
+c. parent view 做transform
+d. GLView 做
+
+
+我們自己寫的
+UIKit 的旋轉：
+MPMovieplayer, 
+ 目前已知看到glView貼到其他uiview
+
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+property 可以override 嗎?  
+--------------------------------------------------------------------------------
+
+
+
+流程
+[CCTTFLabel  labelWithString]
+
+SliceLabel ->ProgressLabel-.progressWithString->initWithString->applyString->[CCTexture2D initWithString]
+
+
+--------------------------------------------------------------------------------
+
+
+
+類似這裡的class 階層圖
+
+http://www.cocos2d-iphone.org/api-ref/2.0.0/interface_c_c_layer_color.html
+
+<>,  這個符號代表Protocol, <CCRGBAProtocol> 就代表CCRGBA是一個Protocol
+
+我們可以說CCLayerColor 這個 interface 繼承CCLayer 並且選擇實作 CCRGBAProtocol 與CCBlendProtocol, 所以箭頭是從CCLayerColor指到 CCRGBAProtocol與CCBlendProtocol, 但為什麼沒有任何箭頭指向CCLayer?
+
+@interface CCLayerColor : CCLayer <CCRGBAProtocol, CCBlendProtocol>{        GLubyte         opacity_;        ccColor3B       color_;        ccVertex2F      squareVertices_[4];        ccColor4F       squareColors_[4];        ccBlendFunc     blendFunc_;}
+
+
+
+ CCParallaxNode is limited in that it doesn't allow infinite scrolling.    
+
+--------------------------------------------------------------------------------
+
+
+
+
+    cocos2d 2.0 api 有改, 請看http://www.cocos2d-iphone.org/wiki/doku.php/prog_guide:migrate_to_v2.0
+       遇到apple mach-O linker error,  這是因為 module 之間的 dependence 關係建立不正確, xcode 雖然讓你不用寫makefile, 但是它的自動判斷常會有錯, 解法請參照這裡http://stackoverflow.com/questions/5783294/link-error-while-building-a-unit-test-target
+       有時一開始run 就seg fault, 中斷點停在main, 不知道真正的問題在哪, 請scroll up message window, 上面會提供詳細出問題的點, 有時簡單的圖檔不存在resource, 呈現症狀也是這樣
+
+

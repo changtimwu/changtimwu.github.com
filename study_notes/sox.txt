@@ -1,0 +1,30 @@
+sox
+--------------------------------------------------------------------------------
+
+
+
+play a.mp3  filter 20-1000
+play a.mp3 echo 0.8 0.88 800 90
+
+effects can be chained.
+play a.mp3 filter 20-1000 echo 0.8 0.88 800 0.9
+
+convert wav files to be playable by  sigma
+
+sox n.wav  -t .raw -s -B -2 -c 2   n.raw
+
+-s means
+-B big endian
+-2 means 16bit per sample
+-c 2 means two channels
+
+play_audio -c pcm16_2  -i2salign 8   n.raw
+
+
+
+
+
+
+--------------------------------------------------------------------------------
+
+

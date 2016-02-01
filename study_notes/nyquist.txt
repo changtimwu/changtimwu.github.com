@@ -1,0 +1,27 @@
+nyquist
+--------------------------------------------------------------------------------
+
+
+
+windows  version would be easier to install.
+choose open to edit an existed file
+choose load to load & compile a script.
+type (startfunction) to start execution
+
+lisp syntax simple examples.
+>(* 3 4)
+12
+>(setf myvar 3)
+>(* myvar 5)
+15
+
+in SAL mode
+play osc(60)
+
+in LISP mode
+(play (osc 60))
+
+
+--------------------------------------------------------------------------------
+
+

@@ -1,0 +1,19 @@
+pyamf
+--------------------------------------------------------------------------------
+
+
+
+amf 是action message format 的縮寫, 算是swf版的 rpc 格式, 可以包在http or rtmp內.
+
+server端的amf 有多種open source implementation, 底下簡介pyamf
+
+pyamf 是python 版的amf library, 安裝很簡單只要
+
+easy_install pyamf
+
+
+
+
+--------------------------------------------------------------------------------
+
+

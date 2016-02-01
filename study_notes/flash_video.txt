@@ -1,0 +1,77 @@
+flash video
+--------------------------------------------------------------------------------
+
+
+
+135 就是以前舊相機 35mm的底片格式, 現在DSLR 用的格式則是APS, 因為APS 是比35mm的size 小, 可以節省感光元件成本.
+
+但是過去的50mm鏡頭都是for 135系統設計的, 把for 135用的鏡頭給APS相機用, 無可避免會遇到裁切,
+
+相反地如果把for APS的鏡頭裝在135系統上面, 就會遇到所謂成像圈不足的狀況
+DX Nikkor 12~24/4 (DX規格, 片幅約為APS大小)在135底片相機(片幅24x36mm)上的成像圈涵蓋不足(12mm端), 無法涵蓋到邊角, 形成黑圈圈的趣味畫面.
+
+--------------------------------------------------------------------------------
+
+
+
+ curacao trace:
+dvd access api:
+
+src/rmdiscapi/externalapi/rmdiscapi.cpp
+
+sigma 只使用linux內最低階的 ioctl  CDROM_SEND_PACKET, 它自己實作大部分的packet command,
+
+最底層在 MRUA_src/rmlibcw/src_linux/rmpacketcommandioctl.c
+短短3個api
+void *RMOpenPacketCommand(const RMnonAscii *naname);
+RMint32 RMIoctlPacketCommand(void *handle,RMpacketCommand *pP);
+void RMClosePacketCommand(void *handle);
+
+void *handle就是int fd, cast 一下就可以用了.
+
+整個curacao 程式裡最常出現的dvd access api卻是另一組, src/rmpacketcommand/include/rmpacketcommandgeneric.h
+這系列的RMpacket開頭的 api,
+
+有個 struct RMpacketHandle *
+一直伴隨著void *handle, 找不到它的prototype,  但使用方式如出一轍
+
+    void *h = RMOpenPacketCommand (device);
+    struct RMpacketHandle *handle = RMpacketOpen (h, RMIoctlPacketCommand);
+
+
+感覺上, struct RMpacketHandle 是用來避免直接access 到fd,   把void *h與RMIoctlPacketCommand這個function參數, 給RMpacketOpen, 理論上RMpacketapi可以做所有的事情.
+
+src/curacao/dvdaudio/em86xx-dvd-device-reader.h
+class DvdDeviceReader內的member variable
+    void *m_packetHandle;
+    struct RMpacketHandle *m_h;
+
+
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+ega3可自魚油中攝取獲得，多吃胡蘿蔔可補充維他命A，精胺酸則可自部份五穀雜糧類食物中獲得。所謂的精胺酸是一氧化氮NO的主要來源，一氧化氮可舒張血管，多食用豆漿、燕麥等未經高溫過度烘焙的穀類食物，不只可改善心血管，也連帶改善生殖器充血不足的情況。
+
+--------------------------------------------------------------------------------
+
+
+
+
+The client variable could in theory also be used to stream either FLV or MP4 video to the player, since the Flash plugin 9,0,98,0 introduced the ability to stream MP4 video. However, the MP4 container format is completely different from the FLV format. While the FLV format is perfectly suited for HTTP streaming through scripts like XMoov-PHP, MP4 streamer scripts would have to perform a lot of additional serverside processing in order to return the right headers and container data with each seek. So far I haven't seen a suitable implementation, so please tell when you know more!.
+An option to benefit from the new H.264 video and AAC audio and still use HTTP streaming, is to encode your videos with H264/AAC, but mux them to an FLV container. This is not recommended by Adobe, but can be done with tools like FFMPEG. Advanced encoding knowledge is required! You'll also loose the ability to spread this file across multiple devices such as smartphones or iPods.
+除非買flash media server, 不然就只能用http 傳video , 但http based flash video是不給seek的, 所以有人在server side用了很多技巧使用module來處理檔案, 做到所謂的http pseudo-streaming,
+但這只能針對FLV,  目前MP4並沒有可用的module, 所以用ffmpeg 把mp4 remux成為flv 也是一個選項.
+With Apache or IIS, you add HTTP streaming through a serverside script, which isn't the best solution performance-wise. A webserver which has this fixed is the Lighttpd webserver. It includes a module for HTTP FLV streaming, so if you use this server you can HTTP stream out-of-the-box. The JW Player is also completey Lighttpd-ready. If you set the flashvar streamer to lighttpd, the player understands it deals with the Lighttpd server and it can seek to non-downloaded parts.
+Additionally, there's also a module for streaming MP4 files for the Lighttpd server. This module does do all the serverside processing needed to mux an MP4 container on the fly every time a seek request is issued. Once again, the JW player understands the functionality if you add an MP4 file and the streamer=lighttpd flashvar. Very cool stuff! Here's an example with a ten-minutes video:
+看樣子 lighttpd 反而有做到. mp4 on-the-fly streamming, 但是要多少processing power呢? 是否需要extra disk space? 跟去 implement 一個RTMP server比起來呢?
+wget -O test.mp4 http://h264.code-shop.com:8080/trailer2.mp4?start=45.5
+
+看起來蠻強的, 可以直接這樣下offset, 不過要先確認mp4裡面有足夠的meta data做seek.
+
+--------------------------------------------------------------------------------
+
+

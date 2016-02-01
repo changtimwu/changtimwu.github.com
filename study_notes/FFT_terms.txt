@@ -1,0 +1,16 @@
+FFT terms
+--------------------------------------------------------------------------------
+
+
+
+In audio signal analysis, the spectrogram is the most commonly-used time-frequency representation, probably because it is well-understood, and immune to so-called "cross-terms" that sometimes make other time-frequency representations difficult to interpret. But the windowing operation required in spectrogram computation introduces an unsavory tradeoff between time resolution and frequency resolution, so spectrograms provide a time-frequency representation that is blurred in time, in frequency, or in both dimensions. The method of time-frequency reassignment is a technique for refocussing time-frequency data in a blurred representation like the spectrogram by mapping the data to time-frequency coordinates that are nearer to the true region of support of the analyzed signal.
+
+time resolution:   
+frequency resolution:  
+單位時間內可以做幾次頻率分析.  v.s. 每次頻率分析結果有多細(ex. 分析出8組頻率 or 128組頻率)
+
+
+dsp, fft
+--------------------------------------------------------------------------------
+
+

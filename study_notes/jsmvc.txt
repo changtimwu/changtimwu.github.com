@@ -1,0 +1,77 @@
+
+基本想法:
+
+templates 的選擇:
+html includes several js, js manipulates html DOM & CSS
+html 是view, js 是logic, 兩者常常要相互操作.
+
+two approaches
+1. View centric: express logic with view
+      * most templates systems, handlebar, mustache, jquery/templ
+      * logic block are constructed with ugly escapes like  {{each}}   {{ if }}
+      * think about rails.  ERB, helper.
+      
+      
+2. Logic centric: express view with logic:
+      * jaml, coffeekup
+      * view is not clean enough ex.  coffeekup
+nav ->
+        ul ->
+      * designer hates
+      
+Think about rails's.  It's view centric.
+1. unobtrusive escape:  <% %> in ERB,  -  in Slim
+2. support hierarchy view( partial )
+3. doesn't reinvent new logic syntax.  Just use ruby.
+
+backbonejs
+--------------------------------------------------------------------------------
+
+
+
+MVC 有個基本要求, 就是data( model) 一有變化, 就自動反應在畫面(view)上, 當你希望做到這個效果, model 與 view 都要依照某個規範來寫, 
+比如在backbone,  一個原本很簡單的 dict model 比如
+var item = { part1: 'hello', part2:'world'};
+
+在backbone  必須先把Item 宣告成某種class, default 代表初值
+var Item = Backbone.Model.extend({    defaults: {      part1: 'hello',      part2: 'world'    }  });
+var item = new Item();
+
+以前access dict 很單純, 比如要改值part2,   item.part2 += counter 就好了, 現在變成要這樣寫 
+item.set({    part2: item.get('part2') + this.counter // modify item defaults});
+
+item 變成要用 set 來通知有修改, 用get來取得資料
+
+
+接下來看看 原本很單純的 array,  
+var list =[ item1,  item2];
+
+現在必須要這樣寫, 一樣先宣告class
+var List = Backbone.Collection.extend({  model: Item});
+
+this.collection = new List();
+
+
+想要增加資料, 原本只要 list.push( item3);  現在改成這樣
+
+var item3 = new Item();
+this.collection.add( item3);
+
+搞得這麼累, 好處是什麼呢?
+
+object data可以有效攔截data change event,  比如
+  this.collection.bind('add', this.appendItem); // collection event binder
+
+這樣每次 collection 一有資料新增, 就會呼叫 this.appendItem , appendItem 怎麼寫, 
+
+  appendItem: function(item){      $('ul', this.el).append("<li>"+item.get('part1')+" "+item.get('part2')+"</li>");    }
+
+
+它的哲學是
+data (model)  可以針對 資料本身的event 比如 get/set/add/del, bind function( controller)在上面, 日後只要資料一有變動, 就會發出event,  然後觸動當初bind function, function 內容都是去更動 mark up(view),   function 的參數就是 合於model 規範的data
+
+
+
+--------------------------------------------------------------------------------
+
+

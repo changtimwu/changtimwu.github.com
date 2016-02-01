@@ -1,0 +1,46 @@
+coding thoughts
+--------------------------------------------------------------------------------
+
+
+
+"qsng_by_zuinmenu"   room_qsng_by_zuinmenu.c　-- the room 選擇歌手或歌曲的聲母點歌
+
+"qsng_by_zsong" room_qsng_by_zsong.c　-- 做歌曲聲母點歌
+
+"qsng_by_zsinger" room_qsng_by_zsinger.c　--做歌手聲母點歌
+
+
+qsng_by_zsong:
+播歌中與非播歌中　都是call ctl_zuin
+
+qsng_by_zsinger:
+播歌中與非播歌中　都是call ctl_singer 
+ QT_MSG_XPOS, QT_MSG_YPOS
+這兩個room 共用背景 gv_kbsearch_bg.bmp,  在QT_MSG_XPOS, QT_MSG_YPOS顯示label來區分, label
+    {"Zhuin singers", "聲母找歌星"},
+    {"Zhuin songs", "聲母找歌曲"},
+
+嘗試以ctl_zuin.c 順便實作出聲母找歌手把
+先查一下整個ctl_zuin 中的與聲母找歌手depend 的部份把它們改成可以獨立於SEP or SINGERP.
+ 搜尋queried_songs,  function有
+
+ctl_zuin_add_song: 處理sympad右半邊的key events, 包含1~6(hot key), & enter, 用來處理從搜尋結果加歌,
+要改成: 從搜尋結果(歌手)中進去查詢歌手歌曲
+ctl_zuin_ins_song:用來處理從搜尋結果插歌,
+要改成: 不理會
+ctl_zuin_show_song: 秀出一整頁歌曲資訊(歌名,星號)
+要改成: 秀出一整頁歌手
+ctl_zuin_menu_on: 播歌中使用, 切換menu on or off, 在off的時候順便把queried_song 清成NULL
+要改成: 不要去動到queried_song
+
+ctl_zuin_init: 初始化, 把queried_song清成NULL
+要改成： 順便對queried_singer作這件事
+
+phosym_pad_edit: 聲符列的編輯, 每編輯一個字元(新增或刪除) 就要把聲符字串重新輸進去qsong_entry_by_phosyms 查詢歌曲, 把結果放到queried_song
+改成: 把聲符字串重新輸進去qsinger_entry_by_phosyms 查詢歌曲, 把結果放到queried_singers
+
+
+ 
+--------------------------------------------------------------------------------
+
+

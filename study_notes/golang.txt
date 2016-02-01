@@ -1,0 +1,12 @@
+* :=一定要給初值
+
+new 跟make的差異
+new 都是單一值
+v1:= new(Vertex){33,44}
+
+* make可以拿來生成array or map
+
+u:=make(map[string]int) 
+bazb:=make([]int,5)
+
+
